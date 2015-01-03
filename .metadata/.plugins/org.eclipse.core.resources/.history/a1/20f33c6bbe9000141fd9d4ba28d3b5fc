@@ -1,0 +1,114 @@
+package com.michael.utils;
+
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+/**
+ * 在项目中经常会遇到保存网络上的图片或者其他文件到本地中，
+ * 如SD卡。这个类能够很方便的实现网络上文件的下载和保存.这里是下载和保存网络上的图片
+ * 
+ */
+public class ImageHelper {
+	
+	public ImageHelper() {
+		
+	}
+
+	/**
+	 * @param url 要下载的文件地址
+	 * @return Bitmap对象
+	 */
+	public static Bitmap DownloadImageFromNet(String url) {
+		Bitmap bt = null;
+		try {
+			/*
+			 * *************** 取得的是byte数组, 从byte数组生成bitmap***********************
+			 * byte[] data =
+			 * getImage(filePath); if(data!=null){ bitmap =
+			 * BitmapFactory.decodeByteArray(data, 0, data.length);// bitmap
+			 * imageView.setImageBitmap(bitmap);// display image }else{
+			 * Toast.makeText(AndroidTest2_3_3.this, "Image error!", 1).show();
+			 * } 
+			 */
+			// ******** 取得的是InputStream，直接从InputStream生成bitmap ***********/
+			bt = BitmapFactory.decodeStream(getImageStream(url));
+			if (bt != null) {
+				return bt;
+			}
+		} catch (Exception e) {
+			// Toast.makeText(context, "Newwork error!",
+			// Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 构建输入流
+	 * 
+	 * @param path
+	 *            The path of image
+	 * @return InputStream
+	 * @throws Exception
+	 */
+	public static InputStream getImageStream(String path) throws Exception {
+		URL url = new URL(path);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setConnectTimeout(5 * 1000);
+		conn.setRequestMethod("GET");
+		if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			return conn.getInputStream();
+		}
+		return null;
+	}
+
+	/**
+	 * 把下载的图片保存到本地，如果已经存在同名的文件，则覆盖。保存的类型是JPEG
+	 * 
+	 * @param bm Bitmap实例
+	 * @param fileName
+	 *            指定图片的名字
+	 * @param savePath
+	 *            要把图片保存到的路径
+	 * @throws IOException
+	 */
+	public static void saveFile(Bitmap bm, String fileName, String savePath)
+			throws IOException {
+		if (bm != null) {
+			String SAVE_PATH = savePath;
+			File dirFile = new File(SAVE_PATH);
+			if (!dirFile.exists()) {
+				dirFile.mkdir();
+			}
+			File myCaptureFile = new File(SAVE_PATH + fileName+".png");
+			if (myCaptureFile != null) {  //如果已经存在同名的文件，则覆盖
+				myCaptureFile.delete();
+			}
+			BufferedOutputStream bos = new BufferedOutputStream(
+					new FileOutputStream(myCaptureFile));
+			bm.compress(Bitmap.CompressFormat.PNG, 100, bos);
+			bos.flush();
+			bos.close();
+		}
+	}
+	
+	/**
+	 * @param localPath 本地中文件的路径 如："mmt/sdcard/userdata/image"  
+	 * @return Bitmap
+	 */
+	public  static Bitmap getLocalImage(String localPath){
+		Bitmap bm = BitmapFactory.decodeFile(localPath);
+		return bm;
+	}
+	
+}
+

@@ -1,0 +1,236 @@
+package com.michael.doubanlogin;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+public class MainActivity extends Activity
+{
+
+	private static final String TAG = "MainActivity";
+
+	private static final String apiKey = "0e4b060dd9b8b2382ae112298d2a16a8";
+	private static final String secret = "4c629eddc73f195e";
+	private static final String callbackMethod = "https://github.com/michaelye/DoubanOnLine.git/";
+	private static final String authorization_code_url_head = "https://www.douban.com/service/auth2/auth";
+	private static final String access_token_url_head = "https://www.douban.com/service/auth2/token";
+	private static final String result_msg_head = callbackMethod + "back?code=";
+
+	private WebView wvLogin;
+	private ProgressBar pbLoading;
+	private String authorization_code = "";
+	private String access_token = "";
+	private Button btn;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		btn = (Button) findViewById(R.id.btn);
+		btn.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+
+				if (access_token != null && !access_token.equals(""))
+				{
+
+					new Thread(accessUserInfoThread).start();
+				}
+
+			}
+		});
+
+		String URL = authorization_code_url_head + "?client_id=" + apiKey + "&redirect_uri=" + callbackMethod + "back&response_type=code&scope=shuo_basic_r,shuo_basic_w,douban_basic_common";
+
+		wvLogin = (WebView) findViewById(R.id.wv_login);
+		pbLoading = (ProgressBar) findViewById(R.id.pb_loading);
+
+		wvLogin.setWebViewClient(new WebViewClient()
+		{
+
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				// 页面加载完毕
+				super.onPageFinished(view, url);
+				if (pbLoading != null && pbLoading.getVisibility() == View.VISIBLE)
+				{
+					pbLoading.setVisibility(View.GONE);
+				}
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				// 页面开始加载时
+				super.onPageStarted(view, url, favicon);
+				if (pbLoading != null && pbLoading.getVisibility() == View.INVISIBLE)
+				{
+					pbLoading.setVisibility(View.VISIBLE);
+				}
+
+				Log.e(TAG, url);
+				if (url.startsWith(result_msg_head))
+				{// 用户授权成功，可以获取authorization_code
+
+					authorization_code = url.substring(result_msg_head.length(), url.length());
+					Toast.makeText(MainActivity.this, "authorization_code:" + authorization_code, Toast.LENGTH_LONG).show();
+					wvLogin.stopLoading();// 停止链接的跳转
+
+					if (authorization_code != null && !authorization_code.equals(""))
+					{// 启动一个线程去获取access_token(不能直接在主线程中访问，会报错android.os.NetworkOnMainThreadException)
+
+						new Thread(accessTokenThread).start();
+					}
+
+				}
+			}
+
+		});
+
+		wvLogin.loadUrl(URL);
+
+	}
+
+	/**
+	 * post不能再主线程中进行，所以开启一个线程来做
+	 */
+	Runnable accessTokenThread = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+
+			post2();
+		}
+	};
+
+	/**
+	 * http://www.androidhive.info/2011/10/android-making-http-requests/
+	 * 
+	 * */
+	private void post2(){
+		// Creating HTTP client
+		HttpClient httpClient = new DefaultHttpClient();
+		 Log.e("authorization_code:", ""+authorization_code);
+		// Creating HTTP Post
+		HttpPost httpPost = new HttpPost("https://www.douban.com/service/auth2/token?");
+		// Building post parameters, key and value pair
+		List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(5);
+		nameValuePair.add(new BasicNameValuePair("client_id", apiKey));
+		nameValuePair.add(new BasicNameValuePair("client_secret", secret));
+		nameValuePair.add(new BasicNameValuePair("redirect_uri", callbackMethod));
+		nameValuePair.add(new BasicNameValuePair("grant_type", "authorization_code"));
+		nameValuePair.add(new BasicNameValuePair("code", authorization_code));
+		httpPost.setHeader(header)
+		httpPost.addHeader(header)
+		//http://developers.douban.com/wiki/?title=api_v2
+		// Url Encoding the POST parameters
+		try {
+		    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
+		}
+		catch (UnsupportedEncodingException e) {
+		    // writing error to Log
+		    e.printStackTrace();
+		}
+		
+		// Making HTTP Request
+		try {
+		    HttpResponse response = httpClient.execute(httpPost);
+		 
+		    if (response != null) {
+				InputStream inputStream = response.getEntity().getContent(); 
+				Log.e(TAG, "获取access_token得到响应");
+
+				access_token = getAccessToken(inputStream);
+			}
+		 
+		} catch (ClientProtocolException e) {
+		    // writing exception to log
+		    e.printStackTrace();
+		 
+		} catch (IOException e) {
+		    // writing exception to log
+		    e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 将服务器返回的InputStream转为String，并截出其中的access_token
+	 * 
+	 * */
+	private String getAccessToken(InputStream inputStream)
+	{
+
+		int i = -1;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+		{
+			while ((i = inputStream.read()) != -1)
+			{
+				baos.write(i);
+			}
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String content = baos.toString();
+		Log.d(TAG + "返回的结果", content);
+		return content;
+	}
+
+	Runnable accessUserInfoThread = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+
+			String url = "http://api.douban.com/v2/user/~me/access_token=" + access_token;
+
+			postForUserInfo(url);
+		}
+	};
+
+	private void postForUserInfo(String myUrl)
+	{
+
+		AndroidClient.read(myUrl);
+	}
+
+	// https://api.douban.com/v2/online/user_participated/67894506?access_token=e55befdf872e7741b013cf9e958b65c3
+
+	// https://api.douban.com/v2/user/xxxxx/ 67894506
+
+}

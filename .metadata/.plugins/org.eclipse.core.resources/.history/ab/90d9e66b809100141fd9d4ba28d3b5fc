@@ -1,0 +1,202 @@
+package com.michael.doubanonline.component;
+
+import android.content.Context;
+import android.text.format.DateUtils;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.AnimationStyle;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.michael.doubanonline.R;
+
+/**
+ * 让下来刷新支持底部的Footer
+ *
+ * @author Michael
+ * @version create time：2013-3-24 下午5:52:52
+ */
+public class PullToRefreshListViewWithFooter extends PullToRefreshListView{
+
+	
+	public PullToRefreshListViewWithFooter(Context context) {
+		super(context);
+		init(context);
+	}
+
+	public PullToRefreshListViewWithFooter(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
+	}
+
+	public PullToRefreshListViewWithFooter(Context context, Mode mode) {
+		super(context, mode);
+		init(context);
+	}
+
+	public PullToRefreshListViewWithFooter(Context context, Mode mode, AnimationStyle style) {
+		super(context, mode, style);
+		init(context);
+	}
+	
+	private View footerView;
+	
+	private void init(final Context context){
+		
+		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		footerView = (View)inflater.inflate(R.layout.list_footer_laod_more, null);
+		((ListView)(((FrameLayout)this.getChildAt(1)).getChildAt(0))).addFooterView(footerView);
+		
+		// 添加ListView下拉刷新的回调
+		this.setOnRefreshListener(new OnRefreshListener<ListView>() {
+			@Override
+			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+				String label = DateUtils.formatDateTime(context, System.currentTimeMillis(),
+						DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+
+				// 更新Head
+				refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
+
+				if(mOnFooterListViewRefreshListener != null){
+					
+					mOnFooterListViewRefreshListener.onFooterListViewRefresh();
+				}
+			}
+		});
+
+		// 添加对ListView被拉到最底下
+		this.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
+
+			@Override
+			public void onLastItemVisible() {
+				
+				if(mOnFooterListViewLastItemVisibleListener != null){
+					
+					mOnFooterListViewLastItemVisibleListener.onFooterListViewLastItemVisible();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * 设置FootView的可见性
+	 * */
+	public void setFooterViewVisibility(int visiablity)
+	{
+		footerView.setVisibility(visiablity);
+	}
+	
+	/** ListView footer的状态为加载完毕*/
+	public static final int LOADING_STATE_DONE = 0;
+	/** ListView footer的状态为加载更多*/
+	public static final int LOADING_STATE_LOADING = 1;
+	/** ListView footer的状态为加载失败*/
+	public static final int LOADING_STATE_FAIL = 2;
+	
+	/**
+	 * 设置ListView的footer，显示正在加载更多
+	 * 有两种状态：
+	 * LOADING_STATE_DONE 表示加载完成，左边的ProgressBar不显示，右边默认显示"加载完毕"
+	 * LOADING_STATE_HAS_MORE 表示正在加载，左边显示ProgressBar，右边默认显示"加载中..."
+	 * 
+	 * @param loadingState 指定ListView的Footer的状态
+	 * 
+	 * */
+	public void setListViewFooterContent(int loadingState){
+		
+		setListViewFooterContent(loadingState, null);
+	}
+	
+	/**
+	 * 设置ListView的footer，显示正在加载更多
+	 * 有两种状态：
+	 * LOADING_STATE_DONE 表示加载完成，左边的ProgressBar不显示，右边默认显示"加载完毕"
+	 * LOADING_STATE_HAS_MORE 表示正在加载，左边显示ProgressBar，右边默认显示"加载中..."
+	 * 
+	 * @param loadingState 指定ListView的Footer的状态
+	 * @param showTip 显示自定义的内容
+	 */
+	public void setListViewFooterContent(int loadingState, String customTip){
+		
+		if(footerView == null){
+			
+			return;
+		}else{
+			
+			if(loadingState != LOADING_STATE_DONE && loadingState != LOADING_STATE_LOADING && loadingState != LOADING_STATE_FAIL){
+				
+				throw new IllegalArgumentException("the param can not be:"+loadingState);
+			}
+			RelativeLayout llFooter = (RelativeLayout)footerView.findViewById(R.id.rl_footer);
+//			llFooter.setVisibility(View.VISIBLE);//因为默认在布局文件中是不可见的，这样在刚开始加载的时候（即ListView中没有数据的时候）就不会显示了
+			ProgressBar pbLoading = (ProgressBar)footerView.findViewById(R.id.pb_loading);
+			TextView tvFooter = (TextView)footerView.findViewById(R.id.tv_loading);
+			switch (loadingState) {
+			case LOADING_STATE_DONE:
+				
+				pbLoading.setVisibility(View.GONE);
+				if(customTip == null){
+					
+					customTip ="加载完毕";
+				}
+				break;
+				
+			case LOADING_STATE_LOADING:
+				
+				pbLoading.setVisibility(View.VISIBLE);
+				if(customTip == null){
+					
+					customTip = "正在加载...";
+				}
+				break;
+				
+			case LOADING_STATE_FAIL:
+				
+				pbLoading.setVisibility(View.GONE);
+				if(customTip == null){
+					
+					customTip = "加载失败，请重试";
+				}
+				break;
+
+			default:
+				break;
+			}
+			
+			tvFooter.setText(new StringBuilder(customTip));
+		}
+	}
+	
+	private OnFooterListViewRefreshListener mOnFooterListViewRefreshListener;
+	
+	public interface OnFooterListViewRefreshListener{
+		
+		public void onFooterListViewRefresh();
+	}
+	
+	public void setOnFooterListViewRefreshListener(OnFooterListViewRefreshListener mOnFooterListViewRefreshListener){
+		
+		this.mOnFooterListViewRefreshListener = mOnFooterListViewRefreshListener;
+	}
+	
+	private OnFooterListViewLastItemVisibleListener mOnFooterListViewLastItemVisibleListener;
+	
+	public interface OnFooterListViewLastItemVisibleListener{
+		
+		public void onFooterListViewLastItemVisible();
+	}
+	
+	public void setOnFooterListViewLastItemVisibleListener(OnFooterListViewLastItemVisibleListener mOnFooterListViewLastItemVisibleListener){
+		
+		this.mOnFooterListViewLastItemVisibleListener = mOnFooterListViewLastItemVisibleListener;
+	}
+}

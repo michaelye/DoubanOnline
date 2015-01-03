@@ -1,0 +1,17 @@
+package com.michael.doubanonline;
+
+import com.michael.doubanonline.bean.Certification;
+import com.michael.doubanonline.db.DBManager;
+
+public class AccountHelper
+{
+
+	/**
+	 * 获取用户的账户信息
+	 * */
+	public static Certification getCertification()
+	{
+		DBManager dbManager = DBManager.getInstance();
+		dbManager.getCache(DBManager.USER_INFO);
+	}
+}

@@ -1,0 +1,9 @@
+package com.michael.doubanonline.bean;
+
+/**
+ * 用户授权登录后获取的用户信息
+ * */
+public class UserInfo
+{
+	
+}

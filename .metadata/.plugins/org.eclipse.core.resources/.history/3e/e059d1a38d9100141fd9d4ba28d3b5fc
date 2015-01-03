@@ -1,0 +1,10 @@
+package com.michael.doubanonline;
+
+public class ImageLoader
+{
+
+	public static void getTransPictureOption()
+	{
+		
+	}
+}

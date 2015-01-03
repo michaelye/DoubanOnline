@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:icon="@android:drawable/ic_menu_more"
+        android:showAsAction="always"
+        android:title=""/>
+    <item
+        android:id="@+id/menu_share"
+        android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
+        android:showAsAction="always"
+        android:title=""/>
+
+    <!-- ic_menu_camera -->
+    <item
+        android:id="@+id/menu_camera"
+        android:icon="@drawable/ic_menu_camera"
+        android:showAsAction="always"
+        android:title="上传">
+        <menu>
+            <item
+                android:id="@+id/sub_item_camera"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="新拍照片"/>
+            <item
+                android:id="@+id/sub_item_photo"
+                android:icon="@drawable/ic_menu_gallery"
+                android:title="相册选择"/>
+            <item
+                android:id="@+id/sub_item_join"
+                android:icon="@drawable/ic_menu_add"
+                android:title="参加活动"/>
+        </menu>
+    </item>
+
+</menu>

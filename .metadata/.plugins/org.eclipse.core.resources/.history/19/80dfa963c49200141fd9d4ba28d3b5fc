@@ -1,0 +1,233 @@
+package com.michael.doubanonline;
+
+import org.apache.http.Header;
+
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
+import com.alibaba.fastjson.JSON;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.michael.doubanonline.base.RefreshActionBarActivity;
+import com.michael.doubanonline.bean.Certification;
+import com.michael.doubanonline.db.DBManager;
+import com.michael.doubanonline.http.RequestTask;
+import com.michael.doubanonline.util.L;
+import com.michael.doubanonline.util.ToastUtil;
+
+/**
+ * 豆瓣认证
+ * 
+ * */
+public class CertificationActivity extends RefreshActionBarActivity
+{
+
+	private WebView wvLogin;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_certification);
+		setActionBar();
+		iniComponent();
+		dbManager = DBManager.getInstance();
+	}
+
+	private void setActionBar()
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle("授权登录");
+		actionBar.setIcon(this.getResources().getDrawable(R.drawable.ic_launcher));
+		actionBar.setDisplayHomeAsUpEnabled(true);// 让icon可以点击，并在icon的右边加上一个<箭头在onMenuItemSelected方法中被监听
+		actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
+		actionBar.setDisplayShowCustomEnabled(true);
+	}
+
+	/**
+	 * 处理ActionBar的返回按钮
+	 * */
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item)
+	{
+		L.e("onMenuItemSelected", "itemID:" + item.getGroupId() + " " + item.getItemId());
+		switch (item.getItemId())
+		{
+		case 16908332:// 这里只能先这样写了// TODO
+			finish();
+			break;
+
+		default:
+			break;
+		}
+		return super.onMenuItemSelected(featureId, item);
+	}
+
+	private static final String apiKey = "0e4b060dd9b8b2382ae112298d2a16a8";
+	private static final String secret = "4c629eddc73f195e";
+	private static final String callbackMethod = "https://github.com/michaelye/DoubanOnLine.git/";
+	private static final String authorization_code_url_head = "https://www.douban.com/service/auth2/auth";
+//	private static final String access_token_url_head = "https://www.douban.com/service/auth2/token";
+	private static final String result_msg_head = callbackMethod + "back?code=";
+	private String authorization_code;
+	private DBManager dbManager;
+
+	private void iniComponent()
+	{
+		wvLogin = (WebView) findViewById(R.id.wvLogin);
+		String URL = authorization_code_url_head + "?client_id=" + apiKey + "&redirect_uri=" + callbackMethod + "back&response_type=code&scope=shuo_basic_r,shuo_basic_w,douban_basic_common";
+		wvLogin.setWebViewClient(new WebViewClient()
+		{
+
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				// 页面加载完毕
+				super.onPageFinished(view, url);
+				setRefreshState(false);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				// 页面开始加载时
+				super.onPageStarted(view, url, favicon);
+				setRefreshState(true);
+
+				L.e("URL:", url);
+				if (url.startsWith(result_msg_head))
+				{
+					// 用户授权成功，可以获取authorization_code
+					authorization_code = url.substring(result_msg_head.length(), url.length());
+//					ToastUtil.show("authorization_code:" + authorization_code);
+					wvLogin.stopLoading();// 停止链接的跳转
+					if (authorization_code != null && !authorization_code.equals(""))
+					{
+						// 启动一个线程去获取access_token
+						getUserInfoByAuthorizationCode();
+					}
+
+				}
+			}
+
+		});
+		wvLogin.loadUrl(URL);
+	}
+
+	/**
+	 * 根据用户授权码获取用户信息
+	 * */
+	private void getUserInfoByAuthorizationCode()
+	{
+		RequestParams params = new RequestParams();
+		params.put("client_id", apiKey);
+		params.put("client_secret", secret);
+		params.put("redirect_uri", callbackMethod);
+		params.put("grant_type", "authorization_code");
+		params.put("code", authorization_code);
+		
+		AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+		asyncHttpClient.setCookieStore(MyApplication.myCookieStore);
+		asyncHttpClient.setTimeout(RequestTask.TIME_OUT);
+		asyncHttpClient.setMaxRetriesAndTimeout(1, RequestTask.TIME_OUT);
+		//这里只能用post
+		asyncHttpClient.post("https://www.douban.com/service/auth2/token?", params, new AsyncHttpResponseHandler() {//这里用get才可以！！！用post提示时间格式错误
+
+			@Override
+			public void onStart()
+			{
+				setRefreshState(true);
+			}
+
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] response)
+			{
+				String result = new String(response);
+				L.e("用户授权：", result);
+				Certification certification = JSON.parseObject(result, Certification.class);
+				if(certification != null)
+				{
+//					ToastUtil.show("恭喜您登录成功~");
+					dbManager.insertCache(DBManager.USER_INFO, result);
+					getUserInfoByAccessToken(certification.getDouban_user_name(), certification.getAccess_token());
+//					CertificationActivity.this.finish();
+				}
+				else
+				{
+					ToastUtil.show("数据解析失败");
+				}
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+			{
+				L.e("onFailure:", new String(responseBody));
+				ToastUtil.show("获取用户授权失败");
+			}
+
+			@Override
+			public void onFinish()
+			{
+				setRefreshState(false);
+			}
+
+		});
+	}
+	
+	
+	private void getUserInfoByAccessToken(String userName, String accessToken)
+	{
+		AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+		asyncHttpClient.setCookieStore(MyApplication.myCookieStore);
+		asyncHttpClient.setTimeout(RequestTask.TIME_OUT);
+		asyncHttpClient.setMaxRetriesAndTimeout(1, RequestTask.TIME_OUT);
+		asyncHttpClient.addHeader("Authorization",  "Bearer " + accessToken);
+		//注意这里只能用get!!!
+		asyncHttpClient.get("https://api.douban.com/v2/user/~me", null, new AsyncHttpResponseHandler() {//这里用get才可以！！！用post提示时间格式错误
+
+			@Override
+			public void onStart()
+			{
+				setRefreshState(true);
+			}
+
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] response)
+			{
+				String result = new String(response);
+				L.e("用户信息：", result);
+				Certification certification = JSON.parseObject(result, Certification.class);
+				if(certification != null)
+				{
+					ToastUtil.show("恭喜您登录成功~");
+//					dbManager.insertCache(DBManager.USER_INFO, result);
+//					getUserInfoByAccessToken(certification.getAccess_token());
+//					CertificationActivity.this.finish();
+				}
+				else
+				{
+					ToastUtil.show("数据解析失败");
+				}
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+			{
+				L.e("onFailure:", new String(responseBody));
+				ToastUtil.show("获取用户信息失败");
+			}
+
+			@Override
+			public void onFinish()
+			{
+				setRefreshState(false);
+			}
+
+		});
+	}
+}

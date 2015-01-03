@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="main_titles">
+        <item>本日最热</item>
+        <item>本周最热</item>
+        <item>最新活动</item>
+        <!-- <item>我的活动</item> -->
+    </string-array>
+
+    <string-array name="detail_titles">
+        <item>按时间排序</item>
+        <item>按热度排序</item>
+        <item>按评论排序</item>
+    </string-array>
+    
+</resources>

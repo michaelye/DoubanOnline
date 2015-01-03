@@ -1,0 +1,7 @@
+package com.michael.doubanonline.bean;
+
+public class OnlineObject {
+
+	private String album_id;
+	
+}

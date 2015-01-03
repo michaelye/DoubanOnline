@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
+
+    <!-- 只要外面不设置大小，高度，这个就可以当作是透明的图片来用，颜色设置什么的都无所谓 -->
+    <!-- 填充 -->
+    <solid android:color="#00000000" />
+
+</shape>

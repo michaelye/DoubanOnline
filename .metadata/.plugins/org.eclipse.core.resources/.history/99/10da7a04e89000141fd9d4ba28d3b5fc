@@ -1,0 +1,49 @@
+package com.michael.doubanonline.bean;
+
+import java.util.List;
+/**
+ * 活动列表
+ * */
+public class Onlines {
+
+	/**
+	 * 本次返回的数量
+	 * */
+	private String count;
+	private String start;
+	private String total;
+	private List<Online> list;
+
+	public String getCount() {
+		return count;
+	}
+
+	public void setCount(String count) {
+		this.count = count;
+	}
+
+	public String getStart() {
+		return start;
+	}
+
+	public void setStart(String start) {
+		this.start = start;
+	}
+
+	public String getTotal() {
+		return total;
+	}
+
+	public void setTotal(String total) {
+		this.total = total;
+	}
+
+	public List<Online> getList() {
+		return list;
+	}
+
+	public void setList(List<Online> list) {
+		this.list = list;
+	}
+
+}

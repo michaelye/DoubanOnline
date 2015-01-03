@@ -1,0 +1,53 @@
+package com.michael.doubanonline.http;
+
+/**
+ * 接口库
+ * 
+ * @author michael
+ *
+ */
+public class InterfaceLib
+{
+	
+	/**
+	 * 获取线上活动列表
+	 * */
+	public static class GetOnlineList
+	{
+		/**接口名*/
+		public static String apiActionName = "onlines";
+		/***/
+		public static String start = "start";
+		/***/
+		public static String count = "count";
+		/***/
+		public static String cate = "cate";
+		
+		/** 今日*/
+		public static final int CATE_TYPE_DAY = 0;
+		/** 本周*/
+		public static final int CATE_TYPE_WEEK = 1;
+		/** 最新*/
+		public static final int CATE_TYPE_LATEST = 2;
+		/** 默认，和CATE_TYPE_DAY是一样的*/
+		public static final int CATE_TYPE_DEFAULT = 3;
+	}
+
+	
+	/**
+	 * 根据目录Id获取图片
+	 *
+	 * */
+	public static class GetOnline
+	{
+		/**接口名*/
+		public static String apiActionName = "online";
+		/***/
+		public static String id = "id";
+		/***/
+		public static String pageNum = "pageNum";
+		/***/
+		public static String pageSize = "pageSize";
+	}
+	
+}

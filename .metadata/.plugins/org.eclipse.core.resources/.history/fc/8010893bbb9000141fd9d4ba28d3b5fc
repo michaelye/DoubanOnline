@@ -1,0 +1,172 @@
+package com.michael.bean.beans;
+
+import com.michael.base.BaseEntity;
+
+/**
+ * 照片
+ * 
+ * */
+//public class Photo implements Parcelable {
+public class Photo extends BaseEntity {
+	 private static final long serialVersionUID = 1L;
+
+	/** id */
+	public String id;
+	/** photo所在网页的链接 */
+	public String alt;
+	/** 所属相册id */
+	public String album_id;
+	/** 所属相册名称 */
+	public String album_title;
+	/** icon */
+	public String icon;
+	/** thumb */
+	public String thumb;
+	/** cover */
+	public String cover;
+	/** image */
+	public String image;
+	/** 描述 */
+	public String desc;
+	/** 创建时间 */
+	public String created;
+	/** 可见性，public, friend, private */
+	public String privacy;
+	/** 位置 */
+	public int position;
+	/** 上一张 */
+	public String prev_photo;
+	/** 下一张 */
+	public String next_photo;
+	/** 喜欢数 */
+	public int liked_count;
+	/** 推荐数 */
+	public int recs_count;
+	/** 回复数 */
+	public int comments_count;
+	/** User对象 */
+	public User author;
+	/** 当前登录用户是否喜欢该图片 */
+	public String liked;
+	/** 各个规格尺寸, 有的尺寸是没有的 */
+	public String sizes;
+
+	@Override
+	public boolean equals(Object o) {
+		return false;
+	}
+//
+//	@Override
+//	public int describeContents() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//	
+//	public Photo(){
+//		
+//	}
+//
+//	@Override
+//	public void writeToParcel(Parcel dest, int flags) {
+//		// TODO Auto-generated method stub
+//		dest.writeString(id);
+//		dest.writeString(alt);
+//		dest.writeString(album_id);
+//		dest.writeString(album_title);
+//		dest.writeString(icon);
+//		dest.writeString(thumb);
+//		dest.writeString(cover);
+//		dest.writeString(image);
+//		dest.writeString(desc);
+//		dest.writeString(created);
+//		dest.writeString(privacy);
+//		dest.writeInt(position);
+//		dest.writeString(prev_photo);
+//		dest.writeString(next_photo);
+//		dest.writeInt(liked_count);
+//		dest.writeInt(recs_count);
+//		dest.writeInt(comments_count);
+//		dest.writeString(author);
+//		dest.writeString(liked);
+//	}
+//
+//	public static final Parcelable.Creator<Photo> CREATOR = new Parcelable.Creator<Photo>() {
+//		public Photo createFromParcel(Parcel in) {
+//			return new Photo(in);
+//		}
+//
+//		public Photo[] newArray(int size) {
+//			return new Photo[size];
+//		}
+//	};
+//
+//	private Photo(Parcel in) {
+//		id = in.readString();
+//		alt = in.readString();
+//		album_id = in.readString();
+//		album_title = in.readString();
+//		icon = in.readString();
+//		thumb = in.readString();
+//		cover = in.readString();
+//		image = in.readString();
+//		desc = in.readString();
+//		created = in.readString();
+//		privacy = in.readString();
+//		position = in.readInt();
+//		prev_photo = in.readString();
+//		next_photo = in.readString();
+//		liked_count = in.readInt();
+//		recs_count = in.readInt();
+//		comments_count = in.readInt();
+//		author = in.readString();
+//		liked = in.readString();
+//	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Photo [id=");
+		builder.append(id);
+		builder.append(", alt=");
+		builder.append(alt);
+		builder.append(", album_id=");
+		builder.append(album_id);
+		builder.append(", album_title=");
+		builder.append(album_title);
+		builder.append(", icon=");
+		builder.append(icon);
+		builder.append(", thumb=");
+		builder.append(thumb);
+		builder.append(", cover=");
+		builder.append(cover);
+		builder.append(", image=");
+		builder.append(image);
+		builder.append(", desc=");
+		builder.append(desc);
+		builder.append(", created=");
+		builder.append(created);
+		builder.append(", privacy=");
+		builder.append(privacy);
+		builder.append(", position=");
+		builder.append(position);
+		builder.append(", prev_photo=");
+		builder.append(prev_photo);
+		builder.append(", next_photo=");
+		builder.append(next_photo);
+		builder.append(", liked_count=");
+		builder.append(liked_count);
+		builder.append(", recs_count=");
+		builder.append(recs_count);
+		builder.append(", comments_count=");
+		builder.append(comments_count);
+		builder.append(", author=");
+		builder.append(author);
+		builder.append(", liked=");
+		builder.append(liked);
+		builder.append(", sizes=");
+		builder.append(sizes);
+
+		return builder.toString();
+	}
+
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/activity_style"
+    android:orientation="vertical" >
+    
+	<com.michael.doubanonline.component.PullToRefreshListViewWithFooter
+	    android:id="@+id/lvList"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    xmlns:ptr="http://schemas.android.com/apk/res-auto"
+        ptr:ptrHeaderTextColor="@color/pullToRefreshHeaderTextColor"
+		ptr:ptrHeaderSubTextColor="@color/pullToRefreshHeaderSubTextColor"
+	    android:divider="@null"
+	    android:listSelector="@android:color/transparent"
+	    />
+    
+</LinearLayout>

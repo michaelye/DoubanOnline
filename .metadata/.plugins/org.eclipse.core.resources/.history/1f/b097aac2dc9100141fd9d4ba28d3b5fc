@@ -1,0 +1,257 @@
+package com.michael.doubanonline;
+
+import java.util.ArrayList;
+
+import android.content.Context;
+import android.content.Intent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
+
+import com.michael.doubanonline.base.BaseCompatableAdapter;
+import com.michael.doubanonline.bean.Photo;
+import com.michael.doubanonline.util.L;
+import com.michael.doubanonline.util.MathUtil;
+import com.michael.doubanonline.util.ScreenUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+/**
+ * 重载getItem和getView
+ * 
+ * 
+ * */
+public class OnlineDetailAdapter extends BaseCompatableAdapter<Photo>{
+
+	
+	protected ImageLoader imageLoader;
+	private static final int COLUMN_NUM = 4;
+	private int PICTURE_WIDTH;
+	public OnlineDetailAdapter(Context context, ArrayList<Photo> data) {
+		
+		super(context, data);
+		PICTURE_WIDTH = ScreenUtil.getScreenWidth(context)/4;
+		imageLoader = MyApplication.getImageLoader();
+	}
+	
+	class ViewHolder {
+		
+		ImageView ivOne;
+		ImageView ivTwo;
+		ImageView ivThree;
+		ImageView ivFour;
+	}
+
+	@Override
+	public int getCount() {
+		
+		if (data == null){
+			return 0;
+		}
+		
+		return MathUtil.getAbsoluteInt(data.size(), COLUMN_NUM);
+	}
+	
+	
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		
+		final ViewHolder viewHolder;
+
+		if (convertView == null) {
+			
+			convertView = super.layoutInflater.inflate(R.layout.list_item_detail, null);
+			viewHolder = new ViewHolder();
+			viewHolder.ivOne = (ImageView) convertView.findViewById(R.id.iv_one);
+			viewHolder.ivTwo = (ImageView) convertView.findViewById(R.id.iv_two);
+			viewHolder.ivThree = (ImageView) convertView.findViewById(R.id.iv_three);
+			viewHolder.ivFour = (ImageView) convertView.findViewById(R.id.iv_four);
+			LayoutParams params = new LayoutParams(PICTURE_WIDTH, PICTURE_WIDTH, 1.0f);
+			viewHolder.ivOne.setLayoutParams(params);
+			viewHolder.ivTwo.setLayoutParams(params);
+			viewHolder.ivThree.setLayoutParams(params);
+			viewHolder.ivFour.setLayoutParams(params);
+			convertView.setTag(viewHolder);
+		} else {
+
+			viewHolder = (ViewHolder) convertView.getTag();
+		}
+		
+		viewHolder.ivOne.setOnClickListener(listener);
+		viewHolder.ivTwo.setOnClickListener(listener);
+		viewHolder.ivThree.setOnClickListener(listener);
+		viewHolder.ivFour.setOnClickListener(listener);
+		viewHolder.ivOne.setTag(position);
+		viewHolder.ivTwo.setTag(position);
+		viewHolder.ivThree.setTag(position);
+		viewHolder.ivFour.setTag(position);
+		
+		for(int i = 0; i < COLUMN_NUM; i++){
+			
+			int realIndex = (position * COLUMN_NUM)+i;
+			if(realIndex >= data.size()){
+				
+				switch (i) {
+				case 1:
+					viewHolder.ivTwo.setVisibility(View.INVISIBLE);
+					viewHolder.ivThree.setVisibility(View.INVISIBLE);
+					viewHolder.ivFour.setVisibility(View.INVISIBLE);
+					break;
+				case 2:
+					viewHolder.ivThree.setVisibility(View.INVISIBLE);
+					viewHolder.ivFour.setVisibility(View.INVISIBLE);
+					break;
+				case 3:
+					viewHolder.ivFour.setVisibility(View.INVISIBLE);
+					break;
+
+				default:
+					break;
+				}
+				break;
+			}
+			Photo photo = data.get(realIndex);
+			//count最大为100
+			//相册https://api.douban.com/v2/album/84733852/photos?apikey=0e4b060dd9b8b2382ae112298d2a16a8&start=10&count=100&order=desc&sortby=time
+			//照片https://api.douban.com/v2/online/11454257/photos?apikey=0e4b060dd9b8b2382ae112298d2a16a8&start=10&count=100&order=desc&sortby=time  vote
+			L.d("next_photo:", photo.next_photo);//https://api.douban.com/v2/photo/1903858268
+			switch (i) {
+			case 0:
+				imageLoader.displayImage(photo.thumb, viewHolder.ivOne, ImageOptions.getGrayPictureOption(0));//加载图片
+				break;
+			case 1:
+				imageLoader.displayImage(photo.thumb, viewHolder.ivTwo, ImageOptions.getGrayPictureOption(0));//加载图片
+				break;
+			case 2:
+				imageLoader.displayImage(photo.thumb, viewHolder.ivThree, ImageOptions.getGrayPictureOption(0));//加载图片
+				break;
+			case 3:
+				imageLoader.displayImage(photo.thumb, viewHolder.ivFour, ImageOptions.getGrayPictureOption(0));//加载图片
+				break;
+
+			default:
+				break;
+			}
+		}
+		
+		return convertView;
+	}
+	
+	private OnClickListener listener = new OnClickListener() {
+		
+		int location;//在ListItem中的位置
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.iv_one:
+				location = 0;
+				break;
+				
+			case R.id.iv_two:
+				location = 1;
+				break;
+							
+			case R.id.iv_three:
+				location = 2;
+				break;
+				
+			case R.id.iv_four:
+				location = 3;
+				break;
+
+			default:
+				break;
+			}
+			setClickedPhotoPosition(v, location);
+//			intentToPhotoDetail(getPhotoObject(v, location));
+			if(onPictureClick != null)
+			{
+				onPictureClick.onClick(position);
+			}
+		}
+	};
+	
+	/**
+	 * 根据照片的Id跳转到显示照片详细的界面
+	 * 
+	 * @param photoId
+	 */
+//	private void intentToPhotoDetail(Photo photo){
+//		
+//		Intent intent = new Intent(context, PhotoDetailActivity.class);
+//		intent.putExtra(PhotoDetailActivity.INTENT_KEY_TOTAL, );
+//		intent.putExtra(PhotoDetailActivity.INTENT_KEY_PHOTO_POSITION, getClickedPhotoPosition());
+//		intent.putExtra(PhotoDetailActivity.INTENT_KEY_ID, OnlineDetailActivity.id);
+//		intent.putExtra(PhotoDetailActivity.INTENT_KEY_DATA_LIST, super.data);
+//		intent.putExtra(PhotoDetailActivity.INTENT_KEY_SORT_BY, );
+//		context.startActivity(intent);
+//	}
+	
+	private OnPictureClick onPictureClick;
+	
+	public void setOnPictureClick(OnPictureClick onPictureClick)
+	{
+		this.onPictureClick = onPictureClick;
+	}
+	
+	public interface OnPictureClick
+	{
+		public void onClick(int position);
+	}
+	
+	/**
+	 * 获取相片的Id
+	 * 
+	 * @param v 被点击的View对象
+	 * @param location 被点击的View在当前ListItem中的位置
+	 * @return
+	 */
+	private Photo getPhotoObject(View v, int location){
+		
+		int position = (Integer) v.getTag();
+		Photo photo = super.data.get(position*4 + location);
+		return photo;
+	}
+	
+	private int clickedPosition = -1;
+	
+	/**
+	 * 设置当前被点击的的图片在photos中的索引
+	 * */
+	private void setClickedPhotoPosition(View v, int location){
+		
+		int position = (Integer) v.getTag();
+		this.clickedPosition = position*4 + location;
+	}
+
+	/**
+	 * 获取当前被点击的的图片在photos中的索引
+	 * */
+	private int getClickedPhotoPosition(){
+		
+		return this.clickedPosition;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

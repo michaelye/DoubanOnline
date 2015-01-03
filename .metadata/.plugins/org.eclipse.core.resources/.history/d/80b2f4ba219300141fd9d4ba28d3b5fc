@@ -1,0 +1,38 @@
+package com.michael.doubanonline.bean;
+
+/**
+ * 用户授权登录后获取的用户信息
+ * */
+public class UserInfo
+{
+	/***/
+	private String loc_id;
+	/***/
+	private String name;
+	/***/
+	private String created;
+	/***/
+	private String is_banned;
+	/***/
+	private String is_suicide;
+	/***/
+	private String loc_name;
+	/***/
+	private String avatar;
+	/***/
+	private String signature;
+	/***/
+	private String uid;
+	/***/
+	private String alt;
+	/***/
+	private String desc;
+	/***/
+	private String type;
+	/***/
+	private String id;
+	/***/
+	private String large_avatar;
+	
+	
+}

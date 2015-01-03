@@ -1,0 +1,89 @@
+package com.michael.doubanonline;
+
+import android.app.Application;
+import android.os.Environment;
+
+import com.loopj.android.http.PersistentCookieStore;
+import com.michael.doubanonline.util.VersionUtil;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+
+/**
+ * 整个应用程序的配置
+ * 
+ * @author Michael
+ * */
+public class MyApplication extends Application
+{
+	/** 服务器异常提醒的内容 */
+	public static String SERVER_ERROR = "服务器异常";
+	/** 服务器正常的状态码 */
+	public static int SUCCESS = 200;
+	/** IP地址 */
+	public static String IP = "https://api.douban.com/v2/";
+	/** IP地址 */
+	public static String apikey = "0e4b060dd9b8b2382ae112298d2a16a8";
+	/** 对URL进行加密的串 */
+//	public static String encryptionStr = "2F89926F0BB9C25F3155F078BC2E12B6";
+	/** context */
+	public static MyApplication applicationContext;
+	/** 应用程序是否在运行 */
+	public boolean APP_RUNNING = false;
+	/** Cookie */
+	public static PersistentCookieStore myCookieStore;
+	/** 图片下载器 */
+	public static ImageLoader imageLoader;
+	/** 数据库管理器 */
+//	public static DBManager dbManager;
+	/** 当前Apk的版本号 */
+	public static int VERSION_CODE = 0;
+
+	private static MyApplication instance;
+	
+	/** 下载的图片保存的路径*/
+	public static final String ImageSavePath = Environment.getExternalStorageDirectory().getPath()+"/MeiTuXiuXiu/";
+
+	public static MyApplication getInstance()
+	{
+		return instance;
+	}
+
+	/**
+	 * 由于百度Api库的原因，这个方法会被调用两次
+	 * 
+	 * */
+	@Override
+	public void onCreate()
+	{
+		super.onCreate();
+		applicationContext = this;
+		instance = this;
+		APP_RUNNING = true;
+		VERSION_CODE = VersionUtil.getVersionCode();
+		myCookieStore = new PersistentCookieStore(MyApplication.applicationContext);
+		iniImageLoader();
+	}
+
+	public static ImageLoader getImageLoader()
+	{
+		return imageLoader;
+	}
+
+	private void iniImageLoader()
+	{
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext()).threadPriority(Thread.NORM_PRIORITY - 2).memoryCacheSize(20 * 1024 * 1024) // 10
+																																													// Mb为图预留的内存大小
+				.denyCacheImageMultipleSizesInMemory().discCacheFileNameGenerator(new Md5FileNameGenerator())
+				// .imageDownloader(new
+				// ExtendedImageDownloader(getApplicationContext()))
+				.tasksProcessingOrder(QueueProcessingType.LIFO)
+				// .enableLogging() // Not necessary in common
+				.build();
+		// Initialize ImageLoader with configuration.
+		ImageLoader.getInstance().init(config);
+		imageLoader = ImageLoader.getInstance();
+	}
+
+}

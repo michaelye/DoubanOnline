@@ -1,0 +1,76 @@
+package com.michael.act.main;
+
+import java.util.List;
+
+import com.michael.bean.beans.Photo;
+import com.michael.utils.MathUtil;
+
+
+/**
+ * 静态工具类，用来帮助线上活动中的详细界面和照片的详细界面确定访问的URL
+ * */
+public class UrlUtil {
+	
+	/** 默认情况下（首次进入和下拉刷新的时候，每次请求的数量）*/
+	public static final int DEFAULT_COUNT_VALUE = 32;
+	/** 当前排序类型*/
+	private static int sortby = 0;
+	/** 服务端当前所有的图片的数量*/
+	public static int total = 0;
+
+	/**
+	 * 设置当前类型
+	 * */
+	public static void setSortby(int sortby){
+		
+		UrlUtil.sortby = sortby;
+	}
+	
+	/**
+	 * 获取当前类型
+	 * */
+	public static int getSortby(){
+		
+		return sortby;
+	}
+	
+	/**
+	 * 获取当前需要从哪一个开始下载
+	 * 如果当前数据源中没有数据，则返回0，如果有数据则返回数据的size
+	 * */
+	public static int getStart(List<Photo> photos){
+		
+		if(photos == null){
+			
+			throw new IllegalArgumentException("the argement can not be null");
+		}
+		return photos.size();
+	}
+	
+	/**
+	 * 通过计算，返回本次要获取的图片的数量
+	 * 假设当前已经获取了10个，服务端还有25个，则返回10
+	 * 假设当前获取了20个，服务端还有25个，则返回5
+	 * 
+	 * */
+	public static int getCount(List<Photo> photos){
+		
+		return MathUtil.getWannaCount(total, getStart(photos), DEFAULT_COUNT_VALUE);
+	}
+	
+	/**
+	 * 每次请求后都要为起始值和所有的值进行初始化
+	 * */
+	public static void setTotalValue(int total){
+		
+		UrlUtil.total = total;
+	}
+
+	/**
+	 * 获得所有的图片的数量
+	 * */
+	public static int getTotalValue(){
+		
+		return total;
+	}
+}

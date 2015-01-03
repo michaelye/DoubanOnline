@@ -1,0 +1,341 @@
+package com.michael.doubanonline;
+
+import java.util.ArrayList;
+
+import roboguice.inject.InjectView;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
+import com.michael.doubanonline.base.RefreshActionBarActivity;
+import com.michael.doubanonline.bean.Online;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewLastItemVisibleListener;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewRefreshListener;
+import com.michael.doubanonline.util.L;
+import com.michael.doubanonline.util.MathUtil;
+import com.michael.doubanonline.util.ToastUtil;
+
+
+/**
+ * 线上活动主界面
+ * 
+ * https://api.douban.com/v2/onlines
+ * 
+ * 给AndroidClient一个是否刷新和缓存失效的时间
+ * 
+ * */
+public class MainActivity extends RefreshActionBarActivity implements ActionBar.OnNavigationListener{
+
+	/** 用来展示线上活动的ListView*/
+	private PullToRefreshListViewWithFooter lvOnlines;
+	/** 当前类型*/
+	private int cateType = 0;
+	/** 服务端当前所有的图片的数量*/
+	private int total = 0;
+	/** ListView的适配器*/
+	private MainAdapter mainAdapter;
+	/** ListView的数据源*/
+	private ArrayList<Online> onlines;
+//	/** 用来控制本次请求是加载更多还是下拉刷新，true表示是下拉刷新*/
+//	private boolean isReLoad = false;
+	/** 默认情况下（首次进入和下拉刷新的时候，每次请求的数量）*/
+	private static final int DEFAULT_COUNT_VALUE = 10;
+	/** 访问数据的AsycnTask*/
+	private Task_GetOnlineList task;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		setActionBar();
+		onlines = new ArrayList<Online>();//Collections.synchronizedList(new ArrayList<Online>())使用线程安全的ArrayList
+		mainAdapter = new MainAdapter(this, onlines);
+		lvOnlines.setAdapter(mainAdapter);
+		iniListener();
+	}
+	
+	private void iniComponent()
+	{
+		lvOnlines = (PullToRefreshListViewWithFooter)findViewById(R.id.lvOnlines);
+	}
+	
+	private void iniListener(){
+		
+		//下拉刷新
+		lvOnlines.setOnFooterListViewRefreshListener(new OnFooterListViewRefreshListener() {
+			
+			@Override
+			public void onFooterListViewRefresh() {
+				
+				if(task != null && task.getStatus() == AsyncTask.Status.FINISHED){
+					
+//					isReLoad = true;
+					getOnlineList(0, DEFAULT_COUNT_VALUE, getCateType(), true, true);
+				}
+			}
+		});
+		
+		//显示更多
+		lvOnlines.setOnFooterListViewLastItemVisibleListener(new OnFooterListViewLastItemVisibleListener() {
+			
+			@Override
+			public void onFooterListViewLastItemVisible() {
+
+				if(getStart() == total){
+
+					lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_DONE, "加载完毕:"+total);
+				}else{//TODO (getStart() < total)这样更安全
+					
+					if(task != null && task.getStatus() == AsyncTask.Status.FINISHED){
+						
+						getOnlineList(getStart(), getCount(), getCateType(), false, false);
+					}
+				}
+			}
+		});
+		
+		lvOnlines.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					
+				Online online = (Online)parent.getItemAtPosition(position);
+				Intent intent = new Intent(MainActivity.this, OnlineDetailActivity.class);
+				intent.putExtra(OnlineDetailActivity.INTENT_KEY_ID, online.id);
+				intent.putExtra(OnlineDetailActivity.INTENT_KEY_TITLE, online.title);
+				intent.putExtra(OnlineDetailActivity.INTENT_KEY_DETAIL, online.desc);
+				MainActivity.this.startActivity(intent);
+			}
+		});
+	}
+	
+	/**
+	 * 设置头部
+	 * 
+	 * */
+	private void setActionBar() {
+
+		ActionBar actionBar = getSupportActionBar();
+		Context context = actionBar.getThemedContext();
+		ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(context, R.array.main_titles, R.layout.sherlock_spinner_item);//sherlock_spinner_item
+		// list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);//这里有一个问题，如果高度不换掉会出错。所以使用自定义的layout,如下
+		// https://groups.google.com/forum/?fromgroups=#!topic/actionbarsherlock/aODtoH2aS-s
+		list.setDropDownViewResource(R.layout.list_action_bar_item);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		actionBar.setListNavigationCallbacks(list, this);
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME);
+		actionBar.setHomeButtonEnabled(true);//图标可以点击
+//		actionBar.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.action_bar_bg));
+		actionBar.setDisplayShowCustomEnabled(true);
+//		LinearLayout ll = new LinearLayout(this);
+//		ivRotate = new ImageView(this);
+//		ivRotate.setImageResource(android.R.drawable.ic_menu_rotate);
+//		ivRotate.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				//刷新
+//				getOnlineList(getCurrOnlineType());
+//			}
+//		});
+//		ll.addView(ivRotate);
+//		actionBar.setCustomView(ll, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.RIGHT|Gravity.CENTER));
+	}
+	
+	/**
+	 * 根据当前类型，读取数据
+	 * 
+	 * @param start 要获取的显示活动的起始索引
+	 * @param count 本次要请求的数量
+	 * @param cateType 列表
+	 * @param isRefresh 是否刷新
+	 * @param isClearList 是否清除ListView中的数据
+	 */
+	private void getOnlineList(int start, int count, int cateType, final boolean isRefresh, final boolean isClearList){
+		
+		if(task != null && task.getStatus() == AsyncTask.Status.RUNNING){//防止多个线程同时运行着
+			
+			return;
+		}
+		
+		if(isRefresh){//如果是当前的线程是下拉刷新，则显示正在加载
+			
+			lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_LOADING);
+		}else{//如果是加载更多，则显示加载的数量
+			
+			lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_LOADING, new StringBuilder("加载中...(").append(getStart()).append("/").append(total).append(")").toString());
+		}
+		
+		setCateType(cateType);
+		setRefreshState(true);
+		task = new Task_GetOnlineList(MainActivity.this, start, count, cateType, isRefresh, new TaskBackCaller<RemoteData<Online>>() {
+			@Override
+			public void onResultReturn(RemoteData<Online> result) {
+				if(result.isOK() || RemoteData.FLAG_NO_NET_WORK.equals(result.flag)){
+					
+					if(isClearList){//如果是重新刷新
+						
+						onlines.clear();
+					}
+					if(result.data != null){
+						
+						setTotalValues(result.total);//获得服务器上所有图片的数量
+						onlines.addAll(result.data);
+					}
+					mainAdapter.notifyDataSetChanged();
+					
+					if(RemoteData.FLAG_NO_NET_WORK.equals(result.flag)){
+						
+						ToastUtil.show(MainActivity.this, "网络不给力啊");
+					}
+					
+					lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_DONE);
+				}else{
+					ToastUtil.show(MainActivity.this, "获取数据失败，请重试");
+					L.e(TAG, "ERROR："+result.flag);
+					lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_FAIL);
+				}
+				lvOnlines.onRefreshComplete();//恢复下拉刷新的状态
+				setRefreshState(false);
+			}
+		});
+		task.execute();
+	}
+
+	/**
+	 * 处理导航项的点击事件
+	 * 默认就会进行调用
+	 * 
+	 * */
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+
+		//TODO 这里可能存在问题，当前线程如果还在运行的话，需要先cancel
+		
+		if(task != null && task.getStatus() == AsyncTask.Status.RUNNING){
+			
+			L.d("task Cancel", "++++++++++++++++++++++++");
+			task.cancel(true);
+		}
+		if(itemPosition == 3){
+			
+			ToastUtil.show(this, "还没做");//我的活动,判断下当前用户是否已经登录了
+		}else{
+			
+			switch (itemPosition) {
+			case 0:
+				setCateType(Task_GetOnlineList.CATE_TYPE_DAY);//本日最热
+				break;
+				
+			case 1:
+				setCateType(Task_GetOnlineList.CATE_TYPE_WEEK);//本周最热
+				break;
+				
+			case 2:
+				setCateType(Task_GetOnlineList.CATE_TYPE_LATEST);//最新活动
+				break;
+
+			default:
+				break;
+			}
+			getOnlineList(0, DEFAULT_COUNT_VALUE, getCateType(), false, true);//第一次先获取前10条数据
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * 获取当前需要从哪一个开始下载
+	 * 如果当前数据源中没有数据，则返回0，如果有数据则返回数据的size
+	 * */
+	private int getStart(){
+		
+		if(onlines == null){
+			
+			onlines = new ArrayList<Online>();
+		}
+		return this.onlines.size();
+	}
+	
+	/**
+	 * 通过计算，返回本次要获取的图片的数量
+	 * 假设当前已经获取了10个，服务端还有25个，则返回10
+	 * 假设当前获取了20个，服务端还有25个，则返回5
+	 * 
+	 * */
+	private int getCount(){
+		
+		return MathUtil.getWannaCount(total, getStart(), DEFAULT_COUNT_VALUE);
+	}
+	
+	/**
+	 * 设置当前类型
+	 * */
+	private void setCateType(int cateType){
+		
+		this.cateType = cateType;
+	}
+	
+	/**
+	 * 获取当前类型
+	 * */
+	private int getCateType(){
+		
+		return cateType;
+	}
+	
+	/**
+	 * 每次请求后都要为起始值和所有的值进行初始化
+	 * */
+	private void setTotalValues(int total){
+		
+		this.total = total;
+	}
+	
+	/**
+	 * 跳转到关于的界面
+	 * */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menuItem) {
+		switch (menuItem.getItemId()) {
+	    case android.R.id.home:
+	    	
+	    	Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+	    	startActivity(intent);
+	    	return true;
+		}
+	  return (super.onOptionsItemSelected(menuItem));
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

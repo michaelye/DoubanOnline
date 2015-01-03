@@ -1,0 +1,71 @@
+package com.michael.doubanonline;
+
+import com.michael.doubanonline.util.RectBitmapDisplayer;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
+public class ImageOptions
+{
+	
+	/**
+	 * 图片加载的时候，不显示
+	 * 
+	 * */
+//	public static DisplayImageOptions getTransPictureOption2(int corner)
+//	{
+//		BitmapDisplayer displayer;
+//		if(corner == 0)
+//		{
+//			displayer = new RectBitmapDisplayer();
+//		}
+//		else
+//		{
+//			displayer = new RoundedBitmapDisplayer(corner);
+//		}
+//		DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.icon)
+//				.showImageForEmptyUri(R.drawable.icon)
+//				.cacheInMemory().cacheOnDisc().displayer(displayer)// 圆角图片
+//				.build();
+//		return options;
+//	}
+	
+	/**
+	 * 图片加载的时候，不显示
+	 * 
+	 * */
+	public static DisplayImageOptions getTransPictureOption(int corner)
+	{
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.bg_trans)
+		.showImageForEmptyUri(R.drawable.bg_trans)
+		.cacheInMemory().cacheOnDisc()
+		.displayer(new RoundedBitmapDisplayer(9))// 圆角图片
+		.build();
+		return options;
+	}
+	
+
+	
+	/**
+	 * 图片加载的时候，显示灰色的图片
+	 * 
+	 * */
+	public static DisplayImageOptions getGrayPictureOption(int corner)
+	{
+		BitmapDisplayer displayer;
+		if(corner == 0)
+		{
+			displayer = new RectBitmapDisplayer();
+		}
+		else
+		{
+			displayer = new RoundedBitmapDisplayer(corner);
+		}
+		DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.gray_background)
+				.showImageForEmptyUri(R.drawable.gray_background)
+				.cacheInMemory().cacheOnDisc().displayer(displayer)
+				.build();
+		return options;
+	}
+}

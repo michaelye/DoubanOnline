@@ -1,0 +1,154 @@
+package com.michael.meitu.http;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import com.michael.meitu.MyApplication;
+
+public class UrlCreator
+{
+
+	/**
+	 * md5加密
+	 * 
+	 * @param inputText
+	 * @return
+	 */
+	public static String md5(String inputText)
+	{
+		return encrypt(inputText, "md5");
+	}
+
+	/**
+	 * sha加密
+	 * 
+	 * @param inputText
+	 * @return
+	 */
+	public static String sha(String inputText)
+	{
+		return encrypt(inputText, "sha-1");
+	}
+
+	/**
+	 * md5或者sha-1加密
+	 * 
+	 * @param inputText
+	 *            要加密的内容
+	 * @param algorithmName
+	 *            加密算法名称：md5或者sha-1，不区分大小写
+	 * @return
+	 */
+	private static String encrypt(String inputText, String algorithmName)
+	{
+		if (inputText == null || "".equals(inputText.trim()))
+		{
+			throw new IllegalArgumentException("请输入要加密的内容");
+		}
+		if (algorithmName == null || "".equals(algorithmName.trim()))
+		{
+			algorithmName = "md5";
+		}
+		String encryptText = null;
+		try
+		{
+			MessageDigest m = MessageDigest.getInstance(algorithmName);
+			m.update(inputText.getBytes("UTF8"));
+			byte s[] = m.digest();
+			// m.digest(inputText.getBytes("UTF8"));
+			return hex(s);
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		return encryptText;
+	}
+
+	/**
+	 * 返回十六进制字符串
+	 * 
+	 * @param arr
+	 * @return
+	 */
+	private static String hex(byte[] arr)
+	{
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < arr.length; ++i)
+		{
+			sb.append(Integer.toHexString((arr[i] & 0xFF) | 0x100).substring(1, 3));
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * CreateApiUrl
+	 * 
+	 * @param apiMethodName
+	 *            : store/getStoreList
+	 * @param keyValues
+	 * @return
+	 */
+	public static String CreateApiUrl(String apiMethodName, Map<String, String> keyValues)
+	{
+		if (apiMethodName == null || "".equals(apiMethodName.trim()))
+		{
+			throw new IllegalArgumentException("请输入API路径");
+		}
+
+		if (keyValues == null)
+		{
+			keyValues = new HashMap<String, String>();
+		}
+
+		// 1：callid 必传参数（整数） 最好为当前时间戳
+		keyValues.put("callid", String.valueOf(System.currentTimeMillis()));
+		keyValues.put("versionCode", MyApplication.VERSION_CODE+"");
+		keyValues = mapSortByKey(keyValues);
+		StringBuilder code = new StringBuilder();
+		StringBuilder newQuery = new StringBuilder();
+		for (Entry<String, String> entry : keyValues.entrySet())
+		{
+//			L.e("", entry.getKey() + "=" + entry.getValue());
+			code.append(entry.getKey() + "=" + entry.getValue());
+			newQuery.append(entry.getKey() + "=" + entry.getValue() + "&");
+		}
+
+		// 加密字段 客户端服务端 保存一致
+		// String encryptionStr = "2F89926F0BB9C25F3155F078BC2E12B6";
+		// String apiUrl = "http://api.duoduofish.com/v1/";
+
+		return String.format("%s%s?%s", MyApplication.IP, apiMethodName, newQuery.toString() + "token=" + md5(code.toString() + MyApplication.encryptionStr));
+	}
+	
+
+	private static SortedMap<String, String> mapSortByKey(Map<String, String> unsort_map)
+	{
+		TreeMap<String, String> result = new TreeMap<String, String>();
+
+		Object[] unsort_key = unsort_map.keySet().toArray();
+		Arrays.sort(unsort_key);
+
+		for (int i = 0; i < unsort_key.length; i++)
+		{
+			result.put(unsort_key[i].toString(), unsort_map.get(unsort_key[i]));
+		}
+		return result.tailMap(result.firstKey());
+	}
+
+	public static String CreateApiUrl(String apiMethodName)
+	{
+		return CreateApiUrl(apiMethodName, null);
+	}
+}

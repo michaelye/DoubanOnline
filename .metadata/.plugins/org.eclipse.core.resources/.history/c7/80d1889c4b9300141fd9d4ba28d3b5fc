@@ -1,0 +1,436 @@
+package com.michael.doubanonline;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.alibaba.fastjson.JSON;
+import com.michael.doubanonline.bean.OnlineList;
+import com.michael.doubanonline.bean.OnlineObject;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewLastItemVisibleListener;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewRefreshListener;
+import com.michael.doubanonline.db.DBManager;
+import com.michael.doubanonline.dialog.DialogCancelOrComfirm;
+import com.michael.doubanonline.dialog.DialogCancelOrComfirm.OnComfirmButtonClicked;
+import com.michael.doubanonline.http.InterfaceLib;
+import com.michael.doubanonline.http.RequestTask;
+import com.michael.doubanonline.http.RequestTask.OnTaskResultListener2;
+import com.michael.doubanonline.user.AccountHelper;
+import com.michael.doubanonline.user.UserInfo;
+import com.michael.doubanonline.util.ToastUtil;
+
+
+/**
+ * 线上活动主界面
+ * 
+ * https://api.douban.com/v2/onlines
+ * 
+ * 给AndroidClient一个是否刷新和缓存失效的时间
+ * 
+ * */
+public class MainActivity extends SherlockActivity implements ActionBar.OnNavigationListener{
+
+	/** 用来展示线上活动的ListView*/
+	private PullToRefreshListViewWithFooter lvOnlines;
+	/** ListView的适配器*/
+	private MainAdapter adapter;
+	/** ListView的数据源*/
+	private ArrayList<OnlineObject> dataList;
+	/** 数据库管理器*/
+	private DBManager dbManager;
+	/** 每页请求的数据*/
+	private static int PAGE_SIZE = 10;
+	/** 服务端所有的活动数量*/
+	private int totalOnlineCount;
+	/** 分类 */
+	private String sortBy;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		setActionBar();
+		iniComponent();
+	}
+	
+	private void iniComponent()
+	{
+		sortBy = InterfaceLib.GetOnlineList.CATE_TYPE_DAY;
+		lvOnlines = (PullToRefreshListViewWithFooter)findViewById(R.id.lvOnlines);
+		dataList = new ArrayList<OnlineObject>();
+		adapter = new MainAdapter(this, dataList);
+		lvOnlines.setAdapter(adapter);
+		dbManager = DBManager.getInstance();
+		iniListener();
+	}
+	
+	private void iniListener(){
+		
+		//下拉刷新
+		lvOnlines.setOnFooterListViewRefreshListener(new OnFooterListViewRefreshListener() {
+			
+			@Override
+			public void onFooterListViewRefresh() {
+				requestData(true);
+			}
+		});
+		
+		//加载更多
+		lvOnlines.setOnFooterListViewLastItemVisibleListener(new OnFooterListViewLastItemVisibleListener() {
+			
+			@Override
+			public void onFooterListViewLastItemVisible() {
+				if(dataList.size() == totalOnlineCount)
+				{
+					lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_DONE, "全部加载完毕了哦~");
+				}
+				else
+				{
+					requestData(false);
+				}
+			}
+		});
+		
+		lvOnlines.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					
+				OnlineObject online = (OnlineObject)parent.getItemAtPosition(position);
+				Intent intent = new Intent(MainActivity.this, OnlineDetailActivity.class);
+				intent.putExtra(OnlineDetailActivity.INTENT_KEY_ID, online.getId());
+				intent.putExtra(OnlineDetailActivity.INTENT_KEY_TITLE, online.getTitle());
+				intent.putExtra(OnlineDetailActivity.INTENT_KEY_DETAIL, online.getDesc());
+				MainActivity.this.startActivity(intent);
+			}
+		});
+	}
+	
+	/**
+	 * 将Json解析为Bean
+	 * */
+	private OnlineList resolveJsonToBean(String jsonString)
+	{
+		return JSON.parseObject(jsonString, OnlineList.class);
+	}
+	
+	/**
+	 * 设置ActionBar
+	 * 
+	 * */
+	private void setActionBar() {
+
+		ActionBar actionBar = getSupportActionBar();
+		Context context = actionBar.getThemedContext();
+		ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(context, R.array.main_titles, R.layout.sherlock_spinner_item);//sherlock_spinner_item
+		// list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);//这里有一个问题，如果高度不换掉会出错。所以使用自定义的layout,如下
+		// https://groups.google.com/forum/?fromgroups=#!topic/actionbarsherlock/aODtoH2aS-s
+		list.setDropDownViewResource(R.layout.list_action_bar_item);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		actionBar.setListNavigationCallbacks(list, this);
+		actionBar.setIcon(R.drawable.ic_launcher);
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME);
+		actionBar.setHomeButtonEnabled(true);//图标可以点击
+//		actionBar.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.action_bar_bg));
+		actionBar.setDisplayShowCustomEnabled(true);
+		//ActionBar右边的圈圈
+//		LinearLayout ll = new LinearLayout(this);
+//		ImageView ivRotate = new ImageView(this);
+//		ivRotate.setImageResource(android.R.drawable.ic_menu_rotate);
+//		ivRotate.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				//刷新
+////				getOnlineList(getCurrOnlineType());
+//			}
+//		});
+//		ll.addView(ivRotate);
+		
+//		LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//		View view = layoutInflater.inflate(R.layout.layout_actionbar_progressbar, null);
+//		actionBar.setCustomView(view, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.RIGHT|Gravity.CENTER));
+		
+	}
+	
+	/**
+	 * 获取数据
+	 * 
+	 * */
+	private void requestData(final boolean isPullToRefresh)
+	{
+		RequestTask request = new RequestTask(this, "获取活动列表");
+		request.setOnTaskResultListener2(new OnTaskResultListener2() 
+		{
+			@Override
+			public void onStart()
+			{
+				setRefreshState(true);
+				lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_LOADING);
+			}
+
+			@Override
+			public void onSuccess(String jsonResponse) 
+			{
+				if (jsonResponse != null) 
+				{
+					OnlineList onlines = resolveJsonToBean(jsonResponse);
+					if(onlines != null)
+					{
+						totalOnlineCount = Integer.parseInt(onlines.getTotal());
+						boolean isClear = false;
+						if(isPullToRefresh && onlines.getOnlines().size() > 0)
+						{
+							isClear = true;
+							int cacheType = DBManager.ONLINE_LIST_DAY;
+							if(sortBy.equals(InterfaceLib.GetOnlineList.CATE_TYPE_DAY))
+							{
+								cacheType = DBManager.ONLINE_LIST_DAY;
+							}
+							else if(sortBy.equals(InterfaceLib.GetOnlineList.CATE_TYPE_WEEK))
+							{
+								cacheType = DBManager.ONLINE_LIST_WEEK;
+							}
+							else if(sortBy.equals(InterfaceLib.GetOnlineList.CATE_TYPE_LATEST))
+							{
+								cacheType = DBManager.ONLINE_LIST_LATEST;
+							}
+							dbManager.insertCache(cacheType, jsonResponse);// 写入缓存
+						}
+						updateListView(onlines, isClear);
+					}
+					else
+					{
+						ToastUtil.show("数据解析失败");
+					}
+				} 
+				else
+				{
+					ToastUtil.show("获取数据为空");
+				}
+				lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_DONE);
+			}
+
+			@Override
+			public void onFail(String message) 
+			{
+				lvOnlines.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_FAIL);
+			}
+			
+			@Override
+			public void onFinish()
+			{
+				lvOnlines.onRefreshComplete();
+				setRefreshState(false);
+			}
+			
+		});
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(InterfaceLib.GetOnlineList.cate, sortBy);
+		map.put(InterfaceLib.GetOnlineList.start, getStart(isPullToRefresh)+"");
+		map.put(InterfaceLib.GetOnlineList.count, PAGE_SIZE+"");
+		request.request(InterfaceLib.GetOnlineList.apiActionName, map);
+	}
+	
+	/**
+	 * 更新ListView
+	 * 
+	 * @param onlines 数据源
+	 * @param isClear 是否清空旧数据
+	 */
+	private void updateListView(OnlineList onlines, boolean isClear)
+	{
+		if(isClear)
+		{
+			dataList.clear();
+		}
+		dataList.addAll(onlines.getOnlines());
+		adapter.notifyDataSetChanged();
+		lvOnlines.setFooterViewVisibility(View.VISIBLE);
+	}
+	
+	/**
+	 * 获取当前需要从哪一个开始下载
+	 * */
+	private int getStart(boolean isPullToRefresh)
+	{
+		if(dataList == null || dataList.size() == 0 || isPullToRefresh)
+		{
+			 return 0;
+		}
+		return dataList.size();
+	}
+	
+	/**
+	 * 处理导航项的点击事件
+	 * 默认就会进行调用
+	 * 
+	 * */
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId)
+	{
+		switch (itemPosition) 
+		{
+			case 0:
+				sortBy = InterfaceLib.GetOnlineList.CATE_TYPE_DAY;//本日最热
+				iniDataWithCacheIfExistOrRequestData();
+				break;
+				
+			case 1:
+				sortBy = InterfaceLib.GetOnlineList.CATE_TYPE_WEEK;//本周最热
+				iniDataWithCacheIfExistOrRequestData();
+				break;
+				
+			case 2:
+				sortBy = InterfaceLib.GetOnlineList.CATE_TYPE_LATEST;//最新活动
+				iniDataWithCacheIfExistOrRequestData();
+				break;
+			
+			case 3:
+				UserInfo userInfo = AccountHelper.getUserInfo(this);
+//				if()
+				//TODO
+				break;
+	
+			default:
+				break;
+		}
+	    return true;
+	}
+	
+	/**
+	 * 设置当前刷新按钮是否可见，true设置为可见
+	 * */
+	public void setRefreshState(boolean isRefresh) {
+
+		if (menuRefresh == null) {
+
+			return;
+		}
+		if (isRefresh) {
+
+			menuRefresh.setVisible(true);
+		} else {
+
+			menuRefresh.setVisible(false);
+		}
+	}
+	
+	private MenuItem menuRefresh;
+	private MenuItem menuNotice;
+	private MenuItem menuLogout;
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		getSupportMenuInflater().inflate(R.menu.main_menu, menu);
+		//刷新
+		menuRefresh = menu.findItem(R.id.menu_refresh);
+		menuRefresh.setActionView(R.layout.layout_menu_item_refresh);// 设置为一个ProgressBar
+		setRefreshState(false);
+		//通知
+		menuNotice = menu.findItem(R.id.menu_notice);
+		menuNotice.setOnMenuItemClickListener(new OnMenuItemClickListener()
+		{
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item)
+			{
+				ToastUtil.show("通知被点击");
+				return false;
+			}
+		});
+		//退出
+		menuLogout = menu.findItem(R.id.menu_logout);
+		menuLogout.setOnMenuItemClickListener(new OnMenuItemClickListener()
+		{
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item)
+			{
+				final DialogCancelOrComfirm dialog = new DialogCancelOrComfirm(MainActivity.this);
+				dialog.setOnComfirmButtonClicked(new OnComfirmButtonClicked()
+				{
+					
+					@Override
+					public void clicked(int buttonIndex)
+					{
+						switch (buttonIndex)
+						{
+						case DialogCancelOrComfirm.BUTTON_CANCEL:
+							dialog.dismissDialog(); 
+							break;
+						case DialogCancelOrComfirm.BUTTON_COMFIRM:
+							
+							break;
+						default:
+							break;
+						}
+					}
+				});
+				dialog.showDialog("确认退出吗？");
+				return false;
+			}
+		});
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	/**
+	 * 如果缓存存在就载入缓存，否则从网络请求
+	 * */
+	private void iniDataWithCacheIfExistOrRequestData()
+	{
+		String jsonCache = null;
+		if(sortBy.equals(InterfaceLib.GetOnlineList.CATE_TYPE_DAY))
+		{
+			jsonCache = dbManager.getCache(DBManager.ONLINE_LIST_DAY);
+		}
+		else if(sortBy.equals(InterfaceLib.GetOnlineList.CATE_TYPE_WEEK))
+		{
+			jsonCache = dbManager.getCache(DBManager.ONLINE_LIST_WEEK);
+		}
+		else if(sortBy.equals(InterfaceLib.GetOnlineList.CATE_TYPE_LATEST))
+		{
+			jsonCache = dbManager.getCache(DBManager.ONLINE_LIST_LATEST);
+		}
+		if(jsonCache != null && !jsonCache.equals(""))
+		{
+			OnlineList onlines = resolveJsonToBean(jsonCache);
+			updateListView(onlines, true);
+		}
+		else
+		{
+			requestData(true);
+		}
+	}
+	
+	/**
+	 * 跳转到关于的界面
+	 * */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menuItem) {
+		switch (menuItem.getItemId()) {
+	    case android.R.id.home:
+	    	
+	    	Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+	    	startActivity(intent);
+	    	return true;
+		}
+	  return (super.onOptionsItemSelected(menuItem));
+	}
+}
+

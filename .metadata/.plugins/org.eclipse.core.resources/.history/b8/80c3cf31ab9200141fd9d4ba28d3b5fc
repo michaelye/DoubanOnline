@@ -1,0 +1,49 @@
+package com.michael.doubanonline;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.webkit.WebView;
+import android.widget.ArrayAdapter;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+
+public class CertificationActivity extends SherlockActivity
+{
+
+	private WebView wvLogin;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_certification);
+		setActionBar();
+		iniComponent();
+	}
+	
+	private void setActionBar()
+	{
+
+		ActionBar actionBar = getSupportActionBar();
+		Context context = actionBar.getThemedContext();
+//		ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(context, R.array.detail_titles, R.layout.sherlock_spinner_item);
+//		list.setDropDownViewResource(R.layout.list_action_bar_item);
+//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+//		actionBar.setListNavigationCallbacks(list, this);
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME);
+		actionBar.setIcon(this.getResources().getDrawable(R.drawable.ic_launcher));
+		actionBar.setDisplayHomeAsUpEnabled(true);// 让icon可以点击，并在icon的右边加上一个<箭头在onMenuItemSelected方法中被监听
+		actionBar.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.action_bar_bg));
+		actionBar.setDisplayShowCustomEnabled(true);
+		// 小菊花：）
+//		LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//		View view = layoutInflater.inflate(R.layout.layout_actionbar_progressbar, null);
+//		actionBar.setCustomView(view, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.RIGHT | Gravity.CENTER));
+	}
+	
+	private void iniComponent()
+	{
+		wvLogin = (WebView)findViewById(R.id.wvLogin);
+	}
+}

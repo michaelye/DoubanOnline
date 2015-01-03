@@ -1,0 +1,15 @@
+package com.michael.doubanonline;
+
+import com.michael.doubanonline.bean.Certification;
+
+public class AccountHelper
+{
+
+	/**
+	 * 获取用户的账户信息
+	 * */
+	public static Certification getCertification()
+	{
+		
+	}
+}

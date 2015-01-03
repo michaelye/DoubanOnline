@@ -1,0 +1,52 @@
+package com.michael.doubanonline.bean;
+
+import java.util.List;
+
+/**
+ * 照片列表
+ * 
+ * */
+public class PhotoList {
+
+	/**
+	 * 本次返回的数量
+	 * */
+	private String count;
+	/**
+	 * 本次返回的起始位置
+	 * */
+	private String start;
+	/**
+	 * 
+	 * */
+	private String sortby;
+	/**
+	 * 排序方式
+	 * */
+	private String total;
+	/**
+	 * 本次返回的数量
+	 * */
+	private String order;
+	/**
+	 * 照片列表
+	 * */
+	private List<Photo> photos;
+
+	public String getCount() {
+		return count;
+	}
+
+	public void setCount(String count) {
+		this.count = count;
+	}
+
+	public List<Photo> getPhotos() {
+		return photos;
+	}
+
+	public void setPhotos(List<Photo> photos) {
+		this.photos = photos;
+	}
+
+}

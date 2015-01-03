@@ -1,0 +1,41 @@
+package com.michael.doubanonline;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
+public class ImageLoader
+{
+
+	/**
+	 * 图片加载的时候，不显示
+	 * 
+	 * */
+	public static DisplayImageOptions getTransPictureOption(int corner)
+	{
+		DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.trans)
+				.showImageForEmptyUri(R.drawable.trans)
+				// TODO
+				.cacheInMemory().cacheOnDisc().displayer(new RoundedBitmapDisplayer(corner))// 圆角图片
+				.build();
+		return options;
+	}
+	
+	/**
+	 * 图片加载的时候，显示灰色的图片
+	 * 
+	 * */
+	public static DisplayImageOptions getGrayPictureOption(int corner)
+	{
+		if(corner == 0)
+		{
+			BitmapDisplayer displayer = new RectBitmapDisplayer();
+		}
+		DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.gray_background)
+				.showImageForEmptyUri(R.drawable.gray_background)
+				// TODO
+				.cacheInMemory().cacheOnDisc().displayer(new RoundedBitmapDisplayer(corner))// 圆角图片
+				.build();
+		return options;
+	}
+}

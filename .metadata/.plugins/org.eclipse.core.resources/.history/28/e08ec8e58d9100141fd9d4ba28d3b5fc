@@ -1,0 +1,22 @@
+package com.michael.doubanonline;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
+public class ImageLoader
+{
+
+	/**
+	 * 图片加载的时候，不显示
+	 * 
+	 * */
+	public static DisplayImageOptions getTransPictureOption()
+	{
+		DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.trans)
+				.showImageForEmptyUri(R.drawable.trans)
+				// TODO
+				.cacheInMemory().cacheOnDisc().displayer(new RoundedBitmapDisplayer(9))// 圆角图片
+				.build();
+		return options;
+	}
+}

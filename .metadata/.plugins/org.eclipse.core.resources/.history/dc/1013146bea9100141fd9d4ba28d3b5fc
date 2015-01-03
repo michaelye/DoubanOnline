@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dip"
+    android:layout_marginLeft="0.8dp"
+    android:layout_marginRight="0.8dp"
+    android:orientation="horizontal" >
+        
+        <com.michael.doubanonline.component.ClickEffectImageView
+            android:id="@+id/ivOne"
+            android:layout_width="match_parent"
+    		android:layout_height="match_parent"
+    		android:layout_weight="1"
+    		android:scaleType="centerCrop"
+    		android:layout_margin="0.8dp"
+            />
+        <com.michael.doubanonline.component.ClickEffectImageView 
+            android:id="@+id/ivTwo"
+            android:layout_width="match_parent"
+    		android:layout_height="match_parent"
+    		android:layout_weight="1"
+    		android:scaleType="centerCrop"
+    		android:layout_margin="0.8dp"
+            />
+        <com.michael.doubanonline.component.ClickEffectImageView 
+            android:id="@+id/ivThree"
+            android:layout_width="match_parent"
+    		android:layout_height="match_parent"
+    		android:layout_weight="1"
+    		android:scaleType="centerCrop"
+    		android:layout_margin="0.8dp"
+            />
+        <com.michael.doubanonline.component.ClickEffectImageView 
+            android:id="@+id/ivFour"
+            android:layout_width="match_parent"
+    		android:layout_height="match_parent"
+    		android:layout_weight="1"
+    		android:scaleType="centerCrop"
+    		android:layout_margin="0.8dp"
+            />
+</LinearLayout>

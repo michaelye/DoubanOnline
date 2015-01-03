@@ -1,0 +1,88 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a android:backgroundarticular API-level can go here. -->
+    </style>
+    
+    <style name="activity_style">
+        <item name="android:background">#ffffff</item>
+    </style>
+    
+    <!-- 半透明的背景 
+    	http://stackoverflow.com/questions/13381567/show-imageview-partly-behind-transparent-actionbar
+    	暂时没有用，效果出不来，使用另外一种方法，在代码中进行控制，参见PhotoDetailActivity.class
+    -->
+    <style name="My_Transparence_Theme" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/TransActionBar</item>
+    	<item name="windowActionBarOverlay">true</item> <!-- for ActionBarSherlock 内容隐藏在ActionBar下面-->
+    	<item name="android:windowActionBarOverlay">true</item>
+	</style>
+	
+    <!-- 半透明的ActionBar 暂时没有用 -->
+    <style name="TransActionBar" parent="@style/My_ActionBar_Style">
+    	<item name="android:background">#64000000</item>
+    </style>
+    
+    <!-- 设置ActionBar的主题，上面的字体以及大小都在这里进行设置 -->
+    <style name="My_ActionBar_Style" parent="@style/Sherlock.__Widget.ActionBar">
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:typeface">normal</item>
+    </style>
+
+    <!-- 自定义进度条样式表 -->
+    <style name="tranparentDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFrame">@null</item>
+        <!-- 边框 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 是否浮现在activity之上 -->
+        <item name="android:windowIsTranslucent">false</item>
+        <!-- 半透明 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 背景透明 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 模糊 -->
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <!-- 取消 点击对话框外cancel -->
+
+    </style>
+    <style name="My_Dialog_Theme" parent="@style/Theme.Sherlock.Dialog">
+        <!-- <item name="android:background">#440909</item> --><!-- 设置的是整个对话框的颜色 -->
+    </style>
+    <!-- <style name="my_listview_style" parent="@android:style/Widget.DeviceDefault.Light.ListView">
+        
+    </style> -->
+    
+    
+    <style name="Theme.Styled" parent="@style/Theme.AppCompat.Light">
+    <!-- Setting values in the default namespace affects API levels 7-13 -->
+    <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
+</style>
+
+<style name="Widget.Styled.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar">
+    <!-- Setting values in the default namespace affects API levels 7-13 -->
+    <item name="background">#FFFFFF</item>
+</style>
+    
+    <style name="custom_dialog_loading" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 去除灰白色边框，但是阴影效果也会被去掉 -->
+        <item name="android:backgroundDimAmount">0.3</item>
+    </style>
+    
+</resources>

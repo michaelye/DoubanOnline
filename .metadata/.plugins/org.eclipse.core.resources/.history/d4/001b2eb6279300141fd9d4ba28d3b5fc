@@ -1,0 +1,223 @@
+package com.michael.doubanonline.user;
+
+import org.apache.http.Header;
+
+import com.alibaba.fastjson.JSON;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.michael.doubanonline.MyApplication;
+import com.michael.doubanonline.db.DBManager;
+import com.michael.doubanonline.http.RequestTask;
+import com.michael.doubanonline.util.L;
+import com.michael.doubanonline.util.ToastUtil;
+
+public class AccountCerfitication
+{
+
+	public static final String apiKey = "0e4b060dd9b8b2382ae112298d2a16a8";
+	public static final String secret = "4c629eddc73f195e";
+	public static final String callbackMethod = "https://github.com/michaelye/DoubanOnLine.git/";
+	public static final String result_msg_head = callbackMethod + "back?code=";
+	
+	private DBManager dbManager;
+	
+	public AccountCerfitication()
+	{
+		dbManager = DBManager.getInstance();
+	}
+	
+	/**
+	 * AccessToken过期的时候可以通过这个方法获得新的AccessToken
+	 * */
+	public void getNewAccessTokenByRefreshToken(String refreshToken)
+	{
+		getAccessTokenByAuthorizationCode(refreshToken);
+	}
+	
+	/**
+	 * 根据用户授权码获取AccessToken
+	 * */
+	public void getAccessTokenByAuthorizationCode(String authorization_code)
+	{
+		RequestParams params = new RequestParams();
+		params.put("client_id", apiKey);
+		params.put("client_secret", secret);
+		params.put("redirect_uri", callbackMethod);
+		params.put("grant_type", "authorization_code");
+		params.put("code", authorization_code);
+		params.put("refresh_token", refreshToken);
+		
+		AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+		asyncHttpClient.setCookieStore(MyApplication.myCookieStore);
+		asyncHttpClient.setTimeout(RequestTask.TIME_OUT);
+		asyncHttpClient.setMaxRetriesAndTimeout(1, RequestTask.TIME_OUT);
+		//这里只能用post！！！
+		asyncHttpClient.post("https://www.douban.com/service/auth2/token?", params, new AsyncHttpResponseHandler() {//这里用get才可以！！！用post提示时间格式错误
+
+			@Override
+			public void onStart()
+			{
+			}
+
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] response)
+			{
+				String result = new String(response);
+				L.e("用户授权：", result);
+				Certification certification = JSON.parseObject(result, Certification.class);
+				if(certification != null)
+				{
+					dbManager.insertCache(DBManager.USER_CERTIFICATION, result);
+					getUserInfoByAccessToken(certification.getAccess_token());
+				}
+				else
+				{
+					ToastUtil.show("数据解析失败");
+				}
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+			{
+				if(responseBody != null)
+				{
+					L.e("onFailure:", new String(responseBody));
+				}
+				else
+				{
+					ToastUtil.show("获取用户授权失败，错误信息为空");
+				}
+				ToastUtil.show("获取用户授权失败");
+			}
+
+			@Override
+			public void onFinish()
+			{
+			}
+
+		});
+	}
+	
+	/**
+	 * AccessToken过期的时候可以通过这个方法获得新的AccessToken
+	 * */
+	public void getNewAccessTokenByRefreshToken(String refreshToken)
+	{
+		
+		RequestParams params = new RequestParams();
+		params.put("client_id", apiKey);
+		params.put("client_secret", secret);
+		params.put("redirect_uri", callbackMethod);
+		params.put("grant_type", "authorization_code");
+		
+		
+		AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+		asyncHttpClient.setCookieStore(MyApplication.myCookieStore);
+		asyncHttpClient.setTimeout(RequestTask.TIME_OUT);
+		asyncHttpClient.setMaxRetriesAndTimeout(1, RequestTask.TIME_OUT);
+		//注意这里只能用get!!!
+		asyncHttpClient.get("https://www.douban.com/service/auth2/token?", null, new AsyncHttpResponseHandler() {//这里用get才可以！！！用post提示时间格式错误
+
+			@Override
+			public void onStart()
+			{
+			}
+
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] response)
+			{
+				String result = new String(response);
+				L.e("用户信息：", result);
+				Certification certification = JSON.parseObject(result, Certification.class);
+				if(certification != null)
+				{
+					ToastUtil.show("恭喜您登录成功~");
+					dbManager.insertCache(DBManager.USER_INFO, result);
+				}
+				else
+				{
+					ToastUtil.show("数据解析失败");
+				}
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+			{
+				if(responseBody != null)
+				{
+					L.e("onFailure:", new String(responseBody));
+				}
+				else
+				{
+					ToastUtil.show("获取用户信息失败，错误信息为空");
+				}
+				ToastUtil.show("获取用户信息失败");
+			}
+
+			@Override
+			public void onFinish()
+			{
+			}
+
+		});
+	}
+	
+	
+	/**
+	 * 根据AccessToken获取用户信息
+	 * */
+	public void getUserInfoByAccessToken(String accessToken)
+	{
+		AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+		asyncHttpClient.setCookieStore(MyApplication.myCookieStore);
+		asyncHttpClient.setTimeout(RequestTask.TIME_OUT);
+		asyncHttpClient.setMaxRetriesAndTimeout(1, RequestTask.TIME_OUT);
+		asyncHttpClient.addHeader("Authorization",  "Bearer " + accessToken);
+		//注意这里只能用get!!!
+		asyncHttpClient.get("https://api.douban.com/v2/user/~me", null, new AsyncHttpResponseHandler() {//这里用get才可以！！！用post提示时间格式错误
+
+			@Override
+			public void onStart()
+			{
+			}
+
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] response)
+			{
+				String result = new String(response);
+				L.e("用户信息：", result);
+				Certification certification = JSON.parseObject(result, Certification.class);
+				if(certification != null)
+				{
+					ToastUtil.show("恭喜您登录成功~");
+					dbManager.insertCache(DBManager.USER_INFO, result);
+				}
+				else
+				{
+					ToastUtil.show("数据解析失败");
+				}
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error)
+			{
+				if(responseBody != null)
+				{
+					L.e("onFailure:", new String(responseBody));
+				}
+				else
+				{
+					ToastUtil.show("获取用户信息失败，错误信息为空");
+				}
+				ToastUtil.show("获取用户信息失败");
+			}
+
+			@Override
+			public void onFinish()
+			{
+			}
+
+		});
+	}
+}

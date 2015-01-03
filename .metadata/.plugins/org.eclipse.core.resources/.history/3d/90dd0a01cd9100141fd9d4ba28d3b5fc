@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/background_dark"
+     >
+    
+    <it.sephiroth.android.library.imagezoom.ImageViewTouch
+        android:id="@+id/zoomableImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
+    
+    <!-- style="@android:style/Widget.Holo.Light.ProgressBar.Large" -->
+    <ProgressBar
+        android:id="@+id/pbLoading" 
+        style="@style/Widget.Sherlock.ProgressBar"
+        android:layout_width="45dip"
+        android:layout_height="45dip"
+        android:layout_centerInParent="true" />
+    
+    <TextView
+        android:id="@+id/tvErrorTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="图片加载失败"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+</RelativeLayout>

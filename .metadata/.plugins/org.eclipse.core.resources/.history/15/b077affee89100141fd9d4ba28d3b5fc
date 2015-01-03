@@ -1,0 +1,96 @@
+package com.michael.doubanonline.component;
+
+import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
+
+/**
+ * 具有点击效果的ImageView
+ * 
+ * 
+ * 
+ * @author Michael
+ * */
+public class ClickEffectImageView extends ImageView
+{
+
+	/** 背景色 */
+	private int BACKGROUND_COLOR = 0x22000000;
+
+	public ClickEffectImageView(Context context)
+	{
+		super(context);
+		init();
+	}
+
+	public ClickEffectImageView(Context context, AttributeSet attrs)
+	{
+		super(context, attrs);
+		init();
+	}
+
+	public ClickEffectImageView(Context context, AttributeSet attrs,
+			int defStyle)
+	{
+		super(context, attrs, defStyle);
+		init();
+	}
+
+	/**
+	 * 设置控件被选中时候的背景色
+	 * 
+	 * */
+	public void setBackgroundSelectedColor(int backgroundColor)
+	{
+		this.BACKGROUND_COLOR = backgroundColor;
+	}
+
+	private void init()
+	{
+		this.setScaleType(ScaleType.MATRIX);
+
+		this.setClickable(true);
+		// 图片点击效果
+		this.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+
+				ImageView view = (ImageView) v;
+				Drawable drawable = view.getDrawable();
+				if (null != drawable)
+				{
+					switch (event.getAction())
+					{
+						case MotionEvent.ACTION_DOWN:
+						{
+
+							// 覆盖在图片上方的是一个黑色的透明的效果
+
+							drawable.setColorFilter(BACKGROUND_COLOR,
+									PorterDuff.Mode.SRC_ATOP);
+
+							break;
+						}
+						case MotionEvent.ACTION_UP:
+						case MotionEvent.ACTION_CANCEL:
+						{
+							// 移除点击效果
+							drawable.clearColorFilter();
+							break;
+						}
+					}
+					view.invalidate();
+				}
+
+				return false;
+			}
+		});
+	}
+
+}

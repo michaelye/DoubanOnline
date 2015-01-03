@@ -1,0 +1,12 @@
+package com.michael.doubanonline;
+
+public class PhotoDetailActivity2 {
+	
+	/**
+	 * 当前的PhotoId
+	 * */
+	public static final String ID = "ID";
+
+	
+	
+}

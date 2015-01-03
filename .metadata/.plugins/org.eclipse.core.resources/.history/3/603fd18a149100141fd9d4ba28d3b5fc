@@ -1,0 +1,15 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/activity_style"
+    tools:context=".MainActivity" >
+
+    <com.michael.doubanonline.component.PullToRefreshListViewWithFooter
+        android:id="@+id/lvOnlines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@null"
+         />
+
+</RelativeLayout>

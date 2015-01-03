@@ -1,0 +1,9 @@
+package com.michael.doubanonline.bean;
+
+public class CommentList
+{
+
+	private String count;
+	private String start;
+	private String total;
+}

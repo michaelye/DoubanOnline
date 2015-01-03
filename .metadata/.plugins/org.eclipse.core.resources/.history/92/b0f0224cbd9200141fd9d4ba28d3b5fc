@@ -1,0 +1,20 @@
+package com.michael.doubanonline;
+
+import com.alibaba.fastjson.JSON;
+import com.michael.doubanonline.bean.Certification;
+import com.michael.doubanonline.db.DBManager;
+
+public class AccountHelper
+{
+
+	/**
+	 * 获取用户的账户信息
+	 * */
+	public static Certification getCertification()
+	{
+		DBManager dbManager = DBManager.getInstance();
+		String cache = dbManager.getCache(DBManager.USER_INFO);
+		Certification certification = JSON.parseObject(cache, Certification.class);
+		if(certification != null)
+	}
+}

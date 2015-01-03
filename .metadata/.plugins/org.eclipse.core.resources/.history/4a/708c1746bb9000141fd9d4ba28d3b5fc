@@ -1,0 +1,40 @@
+package com.michael.doubanonline.bean;
+
+import com.michael.base.BaseEntity;
+
+/**
+ * Photo中返回的对象
+ * */
+public class Sizes{
+
+	
+	private static final long serialVersionUID = 1L;
+	
+	/** icon*/
+	public int[] icon;
+	/** thumb*/
+	public int[] thumb;
+	/** cover*/
+	public int[] cover;
+	/** image*/
+	public int[] image;
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Sizes [icon=");
+		builder.append(icon);
+		builder.append(", thumb=");
+		builder.append(thumb);
+		builder.append(", cover=");
+		builder.append(cover);
+		builder.append(", image=");
+		builder.append(image);
+		return builder.toString();
+		}
+	
+	@Override
+	public boolean equals(Object o) {
+		return false;
+	}
+}

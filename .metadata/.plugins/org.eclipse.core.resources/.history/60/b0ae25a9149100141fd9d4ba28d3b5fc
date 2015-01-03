@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="back_ground_white">#f2f0eb</color>
+    <color name="back_ground_purple">#5a1e68</color>
+    <color name="back_ground_yellow">#f4c601</color>
+    <color name="blue_ball_color">#0952b2</color>
+    <color name="red_ball_color">#a60000</color>
+    <!-- 文字标题 黑色 -->
+    <color name="text_color_title">#000000</color>
+    <!-- 文字内容 深灰色 -->
+    <color name="text_color_content_black">#1a1619</color>
+    <!-- 文字内容 灰色 -->
+    <color name="text_color_gray">#60717d</color>
+    <!-- 文字内容 深灰色 -->
+    <color name="text_color_content_gray_deep">#666666</color>
+    <!-- 文字内容 浅灰色 -->
+    <color name="text_color_content_gray_light">#999999</color>
+    <!-- 文字内容 白色 -->
+    <color name="text_color_white">#ffffff</color>
+    <!-- 文字内容 EditText中的提示 -->
+    <color name="text_color_editText_hint">#CCCCCC</color>
+
+    <!-- 对话框 标题 黑色 -->
+    <color name="text_color_dialog_title_black">#212121</color>
+    <!-- 对话框 按钮 蓝色 -->
+    <color name="text_color_dialog_button_blue">#157efb</color>
+
+    <!-- Activity的半透明效果 -->
+    <color name="transparent_background">#BB000000</color>
+
+    <!-- 代金券类型的logo的背景色，用这个颜色值设置代金券说明的文字颜色 -->
+    <color name="coupon_type_logo_color_green">#8fcd14</color>
+    <!-- 代金券类型的logo的背景色，用这个颜色值设置代金券说明的文字颜色 -->
+    <color name="coupon_type_logo_color_blue">#4cb3de</color>
+
+    <!-- 下拉刷新时候文本提示的颜色 -->
+    <color name="pullToRefreshHeaderTextColor">#666666</color>
+    <!-- 下拉刷新时候文本提示的颜色 -->
+    <color name="pullToRefreshHeaderSubTextColor">#999999</color>
+    <!-- 背景色 -->
+    <color name="back_ground_color">#f0eff5</color>
+
+</resources>

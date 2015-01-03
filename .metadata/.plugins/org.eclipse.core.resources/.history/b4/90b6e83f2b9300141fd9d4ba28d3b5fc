@@ -1,0 +1,40 @@
+package com.michael.doubanonline.user;
+
+import android.content.Context;
+import android.content.Intent;
+
+import com.alibaba.fastjson.JSON;
+import com.michael.doubanonline.CertificationActivity;
+import com.michael.doubanonline.db.DBManager;
+
+/**
+ * 获取用户信息
+ * */
+public class AccountHelper
+{
+
+	/**
+	 * 获取用户的账户信息，如果没有信息就跳转到登录界面
+	 * 
+	 * 如果返回null，说明没有用户信息
+	 * */
+	public static UserInfo getUserInfo(Context context)
+	{
+		DBManager dbManager = DBManager.getInstance();
+		String cache = dbManager.getCache(DBManager.USER_INFO);
+		UserInfo userInfo = JSON.parseObject(cache, UserInfo.class);
+//		if(certification == null)//TODO 这个地方可能还有一个过期的判断
+//		{
+			Intent intent = new Intent(context, CertificationActivity.class);
+			context.startActivity(intent);
+//		}
+		return userInfo;
+	}
+	
+	public static String getAccessToken()
+	{
+		DBManager dbManager = DBManager.getInstance();
+		String cache = dbManager.getCache(DBManager.USER_CERTIFICATION);
+		Certification certification = JSON.parseObject(cache, Certification.class);
+	}
+}

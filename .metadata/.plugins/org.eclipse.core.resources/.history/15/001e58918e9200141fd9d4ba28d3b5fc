@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 下拉刷新时候文本提示的颜色 -->
+    <color name="pullToRefreshHeaderTextColor">#666666</color>
+    <!-- 下拉刷新时候文本提示的颜色 -->
+    <color name="pullToRefreshHeaderSubTextColor">#999999</color>
+
+</resources>

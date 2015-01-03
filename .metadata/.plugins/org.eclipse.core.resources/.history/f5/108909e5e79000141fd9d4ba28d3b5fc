@@ -1,0 +1,12 @@
+package com.michael.doubanonline.bean;
+
+import java.util.List;
+
+public class Onlines 
+{
+
+	private String count;
+	private String start;
+	private String total;
+	private List<Online> list;
+}

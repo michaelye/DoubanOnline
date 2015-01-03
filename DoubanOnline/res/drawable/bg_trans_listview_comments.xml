@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:shape="rectangle"
+  ><!-- android:shape="" 表示是圆角矩形还是椭圆等等 -->
+  	<solid android:color="#44000000"/> <!-- 背景颜色#d5f4ec类似小组的淡绿色 -->
+  	
+  	<!-- padding 表示内部空间距离背景图片内部边距 的距离 -->
+<!-- 	 <padding android:left="8dp" android:top="8dp" 
+            android:right="8dp" android:bottom="8dp" /> -->
+            
+     <!-- <stroke android:width="0.5dp" android:color="#ababab"/> 图片边框属性
+      <corners android:radius="8dp" /> 圆角的程度 -->
+    <!-- <gradient android:startColor="#E3E3E3" android:centerColor="#ffffff" 
+        android:endColor="#ffffff" android:type="linear" android:angle="90" 
+        android:centerX="0.5" android:centerY="0.5" />    -->
+</shape>

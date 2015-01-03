@@ -1,0 +1,911 @@
+package com.michael.doubanonline;
+
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+import it.sephiroth.android.library.imagezoom.ImageViewTouch.OnImageViewTouchSingleTapListener;
+import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.DisplayType;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.TranslateAnimation;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.SlidingDrawer;
+import android.widget.SlidingDrawer.OnDrawerCloseListener;
+import android.widget.SlidingDrawer.OnDrawerOpenListener;
+import android.widget.TextView;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
+import com.alibaba.fastjson.JSON;
+import com.michael.doubanonline.base.BaseCompatableAdapter;
+import com.michael.doubanonline.base.ShareActionBarActivity;
+import com.michael.doubanonline.bean.CommentList;
+import com.michael.doubanonline.bean.Comments;
+import com.michael.doubanonline.bean.Photo;
+import com.michael.doubanonline.bean.PhotoList;
+import com.michael.doubanonline.component.ImageViewTouchViewPager;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewRefreshListener;
+import com.michael.doubanonline.db.DBManager;
+import com.michael.doubanonline.http.InterfaceLib;
+import com.michael.doubanonline.http.RequestTask;
+import com.michael.doubanonline.http.RequestTask.OnTaskResultListener2;
+import com.michael.doubanonline.util.DateUtil;
+import com.michael.doubanonline.util.FileUtils;
+import com.michael.doubanonline.util.ImageHelper;
+import com.michael.doubanonline.util.L;
+import com.michael.doubanonline.util.ToastUtil;
+import com.michael.doubanonline.util.VibratorUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+
+/**
+ * 显示照片详细的界面
+ * 
+ * 评论的下拉刷新和写评论
+ * 
+ * 外面需要将该线上活动的Id,当前照片所在的List中的索引和获取图片列表的参数
+ * 
+ * @author Michael
+ * @version create time：2013-3-25 下午3:33:45
+ */
+@SuppressWarnings("deprecation")
+public class PhotoDetailActivity extends ShareActionBarActivity
+{
+
+	/** 照片在当前所有照片中的索引 photo对象的position值 */
+	public static final String INTENT_KEY_PHOTO_POSITION = "INTENT_KEY_PHOTO_POSITION";
+	/** 所有照片的数量 */
+	public static final String INTENT_KEY_TOTAL = "INTENT_KEY_TOTAL";
+	/** id,该活动的Id，而不是某张照片的Id */
+	public static final String INTENT_KEY_ID = "INTENT_KEY_ID";
+	/** 当前用户已经访问的图片的列表 */
+	public static final String INTENT_KEY_DATA_LIST = "INTENT_KEY_DATA_LIST";
+	/** 当前用户访问图片的排序方式 */
+	public static final String INTENT_KEY_SORT_BY = "INTENT_KEY_SORT_BY";
+
+	/** 标题栏 */
+	private ActionBar actionBar;
+	/** 存放着所有的ViewPager中的页面 */
+	private List<View> mListViews;
+	/** 用来实例化布局文件 */
+	private LayoutInflater mInflater;
+	/** 存放照片数据源的ArrayList */
+	private ArrayList<Photo> photos;
+	/** 适配器 */
+	private ZoomablePagerAdapter photosAdapter;
+	
+	/** 图片下载器 */
+	protected ImageLoader imageLoader;
+	/** 评论 */
+	private ArrayList<Comments> comments;
+	/** 评论ListView适配器 */
+	private CommentsAdapter commentsAdapter;
+	/** 编辑模式 */
+	private ActionMode mActionMode;// 编辑模式
+	/** 数据库管理器*/
+	private DBManager dbManager;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);// 让ActionBar悬浮在图片上面
+		setContentView(R.layout.activity_photo_detail);
+		imageLoader = MyApplication.getImageLoader();
+		dbManager = DBManager.getInstance();
+		iniComponent();
+		iniListener();
+		setActionBar();
+		getDataFromIntent();
+		iniData();
+	}
+
+	/** ViewPager对象 */
+	private ImageViewTouchViewPager zoomableViewPager;
+	/** 显示照片评论的抽屉 */
+	private SlidingDrawer sdComments;
+	/** 显示照片描述 */
+	private TextView tvDesc;
+	/** 显示照片的上传者和日期 */
+	private TextView tvAuthorAndDate;
+	/** 显示评论人数 */
+	private TextView tvCommentNum;
+	/** 显示评论 */
+	private PullToRefreshListViewWithFooter lvComments;
+	/** 输入评论的文本框 */
+	private EditText etComment;
+	/** 发送评论的按钮 */
+	private ImageView ivSendComment;
+	/** 没有评论的提示*/
+	private TextView tvNoComments;
+
+	private void iniComponent()
+	{
+		zoomableViewPager = (ImageViewTouchViewPager) findViewById(R.id.zoomableViewPager);
+		sdComments = (SlidingDrawer) findViewById(R.id.sdComments);
+		tvDesc = (TextView) findViewById(R.id.tvDesc);
+		tvAuthorAndDate = (TextView) findViewById(R.id.tvAuthorAndDate);
+		tvCommentNum = (TextView) findViewById(R.id.tvCommentNum);
+		lvComments = (PullToRefreshListViewWithFooter) findViewById(R.id.lvComments);
+		lvComments.setEmptyView(getEmptyView());
+		etComment = (EditText) findViewById(R.id.etComment);
+		ivSendComment = (ImageView) findViewById(R.id.ivSendComment);
+		mListViews = new ArrayList<View>();
+		photos = new ArrayList<Photo>();
+		photosAdapter = new ZoomablePagerAdapter();
+		zoomableViewPager.setAdapter(photosAdapter);
+		mInflater = getLayoutInflater();
+		comments = new ArrayList<Comments>();
+		commentsAdapter = new CommentsAdapter(this, comments);
+		lvComments.setAdapter(commentsAdapter);
+	}
+	
+	/**
+	 * 没有评论的时候显示
+	 * */
+	private View getEmptyView()
+	{
+		LayoutInflater layoutInflater = this.getLayoutInflater();
+		View emptyView = (View) layoutInflater.inflate(R.layout.layout_no_comment_empty_view, null);
+		tvNoComments = (TextView)emptyView.findViewById(R.id.tvNoComments);
+		tvNoComments.setText("评论加载中...");
+		return emptyView;
+	}
+
+	/** 所有图片的数量*/
+	private int total;
+	/** 排序方式*/
+	private String sortBy;
+	/** 当前照片在photos中的索引 */
+	private int currentPhotoPosition;
+	/** 该活动的Id */
+	private String id;
+	@SuppressWarnings("unchecked")
+	private void getDataFromIntent()
+	{
+		Intent intent = getIntent();
+		currentPhotoPosition = intent.getIntExtra(INTENT_KEY_PHOTO_POSITION, -1);
+		id = intent.getStringExtra(INTENT_KEY_ID);
+		photos = (ArrayList<Photo>) intent.getSerializableExtra(INTENT_KEY_DATA_LIST);
+		total = intent.getIntExtra(INTENT_KEY_TOTAL, -1);
+		sortBy = intent.getStringExtra(INTENT_KEY_SORT_BY);
+	}
+	
+	private void iniData()
+	{
+		for (int i = 0; i < photos.size(); i++)
+		{
+			addViewItem();
+		}
+		photosAdapter.notifyDataSetChanged();
+		zoomableViewPager.setCurrentItem(currentPhotoPosition);// 设置当前是第几张
+		updateComponentData(currentPhotoPosition);
+	}
+
+	private void addViewItem()
+	{
+		View layout = mInflater.inflate(R.layout.view_pager_layout, null);
+		ImageViewTouch zoomableImageView = (ImageViewTouch) layout.findViewById(R.id.zoomableImageView);
+		zoomableImageView.setDisplayType(DisplayType.FIT_TO_SCREEN);// 设置图片的大小模式
+		mListViews.add(layout);
+	}
+
+	private void iniListener()
+	{
+		// ViewPager左右切换
+		zoomableViewPager.setOnPageChangeListener(new OnPageChangeListener()
+		{
+			@Override
+			public void onPageSelected(int position)
+			{
+				L.d("onPageSelected:" + position, "photos:" + photos.size());
+				updateComponentData(position);
+				if (position == photos.size() - 1)
+				{
+					if (total == photos.size())
+					{
+						ToastUtil.show("所有图片都加载完了哦~");
+					} 
+					else
+					{
+						ToastUtil.show("骚等，正在加载更多~");//TODO 这个地方可以考虑去掉提示，直接在ActionBar上加上小菊花
+						requestData();
+					}
+				}
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2)
+			{
+
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int state)
+			{
+
+			}
+		});
+
+		// 评论抽屉关闭
+		sdComments.setOnDrawerCloseListener(new OnDrawerCloseListener()
+		{
+			@Override
+			public void onDrawerClosed()
+			{
+				actionBar.show();
+				if (comments.size() != 0)
+				{
+					comments.clear();
+					commentsAdapter.notifyDataSetChanged();
+				}
+				if (tvNoComments.getVisibility() == View.VISIBLE)
+				{
+					tvNoComments.setVisibility(View.GONE);
+				}
+			}
+		});
+
+		// 评论抽屉打开
+		sdComments.setOnDrawerOpenListener(new OnDrawerOpenListener()
+		{
+			@Override
+			public void onDrawerOpened()
+			{
+				actionBar.hide();
+				// TODO 判断下是否已经有数据
+				requestCommentData();
+			}
+		});
+
+		// 下拉刷新
+		lvComments.setOnFooterListViewRefreshListener(new OnFooterListViewRefreshListener()
+		{
+			@Override
+			public void onFooterListViewRefresh()
+			{
+				requestCommentData();
+			}
+		});
+	}
+	
+	/**
+	 * 获取缓存的评论数据
+	 * */
+	private String getCacheComment(int cacheId)
+	{
+		dbManager.getCommentCache(cacheId);
+		return null;
+	}
+	
+	/**
+	 * 把评论数据缓存起来
+	 * */
+	private void cacheCommentData(String commentJson)
+	{
+		
+	}
+	
+	/**
+	 * 将Json解析为Bean
+	 * */
+	private PhotoList resolveJsonToBean(String jsonString)
+	{
+		return JSON.parseObject(jsonString, PhotoList.class);
+	}
+	
+	/**
+	 * 获取数据
+	 * 
+	 * */
+	private void requestData()
+	{
+		RequestTask request = new RequestTask(this, "获取图片列表");
+		request.setOnTaskResultListener2(new OnTaskResultListener2()
+		{
+			@Override
+			public void onStart()
+			{
+				
+			}
+
+			@Override
+			public void onSuccess(String jsonResponse)
+			{
+				if (jsonResponse != null)
+				{
+					PhotoList photoList = resolveJsonToBean(jsonResponse);
+					if (photoList != null)
+					{
+						int resultSize = photoList.getPhotos().size();
+						photos.addAll(photoList.getPhotos());
+						total = Integer.parseInt(photoList.getTotal());
+						for (int i = 0; i < resultSize; i++) 
+						{
+							addViewItem();
+						}
+					} 
+					else
+					{
+						ToastUtil.show("数据解析失败");
+					}
+				} else
+				{
+					ToastUtil.show("获取数据为空");
+				}
+			}
+
+			@Override
+			public void onFail(String message)
+			{
+				ToastUtil.show("获取数据为空");
+			}
+
+			@Override
+			public void onFinish()
+			{
+
+			}
+		});
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(InterfaceLib.GetPhotos.start, getStart() + "");
+		map.put(InterfaceLib.GetPhotos.count, OnlineDetailActivity.PAGE_SIZE + "");
+		map.put(InterfaceLib.GetPhotos.sortby, sortBy);
+		request.request("online/" + id + "/" + InterfaceLib.GetPhotos.apiActionName, map, false, "正在获取图片列表...");
+	}
+	
+	/**
+	 * 获取当前需要从哪一个开始下载
+	 * */
+	private int getStart()
+	{
+		if (photos == null || photos.size() == 0)
+		{
+			return 0;
+		}
+		return photos.size();
+	}
+
+	/**
+	 * 获取数据
+	 * 
+	 * */
+	private void requestCommentData()
+	{
+		RequestTask request = new RequestTask(this, "获取图片评论");
+		request.setOnTaskResultListener2(new OnTaskResultListener2()
+		{
+			@Override
+			public void onStart()
+			{
+				
+			}
+
+			@Override
+			public void onSuccess(String jsonResponse)
+			{
+				
+				if (jsonResponse != null)
+				{
+					CommentList commentList = JSON.parseObject(jsonResponse, CommentList.class);
+					if (commentList != null)
+					{
+						comments.clear();
+						comments.addAll(commentList.getComments());
+						commentsAdapter.notifyDataSetChanged();
+						if(comments.size() == 0)
+						{
+							tvNoComments.setText("暂时木有评论哦~");
+						}
+						else
+						{
+							
+						}
+					} 
+					else
+					{
+						ToastUtil.show("数据解析失败");
+					}
+				} else
+				{
+					ToastUtil.show("获取数据为空");
+				}
+			}
+
+			@Override
+			public void onFail(String message)
+			{
+				ToastUtil.show("获取数据为空");
+			}
+
+			@Override
+			public void onFinish()
+			{
+
+			}
+		});
+		request.request("photo/" + photos.get(currentPhotoPosition).id + "/" + InterfaceLib.GetPhotoComment.apiActionName, new HashMap<String, String>(), false, "正在获取图片评论...");
+	}
+	
+	/**
+	 * 隐藏底部的评论
+	 * */
+	private void hideDescribe()
+	{
+
+		if (sdComments.getAnimation() != null)
+		{
+
+			sdComments.clearAnimation();
+		}
+		LinearLayout llHandle = (LinearLayout) sdComments.findViewById(R.id.handle);
+		TranslateAnimation animation = new TranslateAnimation(0, 0, 0, llHandle.getHeight());
+		animation.setFillAfter(true);
+		animation.setDuration(400);
+		animation.setAnimationListener(new AnimationListener()
+		{
+
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				sdComments.setVisibility(View.GONE);
+			}
+		});
+		sdComments.startAnimation(animation);
+	}
+	
+	/**
+	 * 显示底部的评论
+	 * */
+	private void showDescribe()
+	{
+
+		if (sdComments.getAnimation() != null)
+		{
+
+			sdComments.clearAnimation();
+		}
+		sdComments.setVisibility(View.VISIBLE);
+		LinearLayout llHandle = (LinearLayout) sdComments.findViewById(R.id.handle);
+		TranslateAnimation animation = new TranslateAnimation(0, 0, llHandle.getHeight(), 0);
+		animation.setFillAfter(true);
+		animation.setDuration(300);
+		sdComments.startAnimation(animation);
+	}
+
+	/**
+	 * 返回按钮按下的时候，如果评论是打开的就关闭评论
+	 * 
+	 * */
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		if (keyCode == KeyEvent.KEYCODE_BACK)
+		{
+
+			if (sdComments.isOpened())
+			{
+
+				sdComments.close();
+			} else
+			{
+
+				finish();
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	/**
+	 * 设置头部
+	 * 
+	 * */
+	private void setActionBar()
+	{
+		actionBar = getSupportActionBar();
+		// actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME);//这句如果加上，则setTitle不起作用
+		actionBar.setDisplayHomeAsUpEnabled(true);// 让icon可以点击，并在icon的右边加上一个<箭头在onMenuItemSelected方法中被监听
+		actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.actionbar_bg_trans));// 设置ActionBar为半透明的背景
+		actionBar.setDisplayShowCustomEnabled(true);
+	}
+
+	/**
+	 * 根据当前的索引更新组件的内容
+	 * 
+	 * */
+	private void updateComponentData(int position)
+	{
+
+		Photo photo = photos.get(position);
+		final View view = mListViews.get(position);
+		ImageViewTouch zoomableImageView = (ImageViewTouch) view.findViewById(R.id.zoomableImageView);
+		zoomableImageView.setOnLongClickListener(new OnLongClickListener()
+		{
+
+			@Override
+			public boolean onLongClick(View v)
+			{
+
+				VibratorUtil.Vibrate(PhotoDetailActivity.this, 50);
+				mActionMode = startActionMode(new ActionModeOfSave(ActionModeOfSave.ACTION_MODE_SAVE_PHOTO));
+				return false;
+			}
+		});
+		zoomableImageView.setSingleTapListener(new OnImageViewTouchSingleTapListener()
+		{
+
+			@Override
+			public void onSingleTapConfirmed()
+			{
+				if (actionBar.isShowing())
+				{
+
+					actionBar.hide();
+					hideDescribe();
+
+				} else
+				{
+
+					actionBar.show();
+					showDescribe();
+				}
+			}
+		});
+
+		final ProgressBar pbLoading = (ProgressBar) view.findViewById(R.id.pbLoading);
+		imageLoader.displayImage(photo.image, zoomableImageView, ImageOptions.getTransPictureOption(0));// 加载图片
+		MyApplication.getImageLoader().displayImage(photo.image, zoomableImageView, ImageOptions.getTransPictureOption(0), new ImageLoadingListener()
+		{
+
+			@Override
+			public void onLoadingStarted()
+			{
+				pbLoading.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onLoadingFailed(FailReason failReason)
+			{
+				view.findViewById(R.id.tvErrorTip).setVisibility(View.VISIBLE);
+				pbLoading.setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onLoadingComplete(Bitmap loadedImage)
+			{
+				view.findViewById(R.id.tvErrorTip).setVisibility(View.GONE);
+				pbLoading.setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onLoadingCancelled()
+			{
+				pbLoading.setVisibility(View.GONE);
+			}
+		});
+
+		updateTitle(photo.position);
+		setCurrentPhotoPosition(position);
+		tvDesc.setText(photo.desc);
+		tvAuthorAndDate.setText(new StringBuilder().append(photo.author.getName()).append(" 上传于 ").append(photo.created));
+		tvCommentNum.setText(photo.comments_count + "");
+	}
+
+	/**
+	 * 设置当前照片在photos中的位置
+	 * */
+	private void setCurrentPhotoPosition(int currentPhotoPosition)
+	{
+		this.currentPhotoPosition = currentPhotoPosition;
+	}
+
+	/**
+	 * 获得当前照片在photos中的位置
+	 * */
+	private int getCurrentPhotoPosition()
+	{
+		return this.currentPhotoPosition;
+	}
+
+	/**
+	 * 更新标题
+	 * 
+	 * 由于position默认是从0开始的，所以这里面进行了+1处理
+	 * */
+	private void updateTitle(int currentPosition)
+	{
+
+		if (actionBar != null)
+		{
+
+			actionBar.setTitle(new StringBuilder("第").append(currentPosition + 1).append("张/共").append(total).append("张"));
+		}
+	}
+
+	/**
+	 * 显示图片的ViewPager适配器
+	 * */
+	private class ZoomablePagerAdapter extends PagerAdapter
+	{
+
+		public ZoomablePagerAdapter()
+		{
+		}
+
+		@Override
+		public int getCount()
+		{
+			return photos.size();
+		}
+
+		@Override
+		public Object instantiateItem(View collection, int position)
+		{
+
+			L.d("instantiateItem:", "++++++++" + position);// 这个position是不确定的！
+			// 为什么照片的顺序没有错！
+			try
+			{
+				if (mListViews.get(position).getParent() == null)
+				{
+					((ViewPager) collection).addView(mListViews.get(position), 0);
+				}
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				L.e("error", "ViewPager addView wrong!");
+			}
+			return mListViews.get(position);
+		}
+
+		@Override
+		public void destroyItem(View collection, int position, Object view)
+		{
+			((ViewPager) collection).removeView(mListViews.get(position));
+		}
+
+		@Override
+		public boolean isViewFromObject(View view, Object object)
+		{
+			return view == (object);
+		}
+
+		@Override
+		public void finishUpdate(View arg0)
+		{
+		}
+
+		@Override
+		public void restoreState(Parcelable arg0, ClassLoader arg1)
+		{
+		}
+
+		@Override
+		public Parcelable saveState()
+		{
+			return null;
+		}
+
+		@Override
+		public void startUpdate(View arg0)
+		{
+		}
+	}
+
+	/**
+	 * 评论的ListView数据源适配器
+	 * */
+	private class CommentsAdapter extends BaseCompatableAdapter<Comments>
+	{
+
+		public CommentsAdapter(Context context, ArrayList<Comments> data)
+		{
+			super(context, data);
+		}
+
+		class ViewHolder
+		{
+			ImageView ivPhoto;
+			TextView tvAuthor;
+			TextView tvDate;
+			TextView tvComment;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent)
+		{
+			final ViewHolder viewHolder;
+
+			if (convertView == null)
+			{
+				convertView = super.layoutInflater.inflate(R.layout.list_item_comments, null);
+				viewHolder = new ViewHolder();
+				viewHolder.ivPhoto = (ImageView) convertView.findViewById(R.id.iv_photo);
+				viewHolder.tvAuthor = (TextView) convertView.findViewById(R.id.tv_author);
+				viewHolder.tvDate = (TextView) convertView.findViewById(R.id.tv_date);
+				viewHolder.tvComment = (TextView) convertView.findViewById(R.id.tv_comment);
+				convertView.setTag(viewHolder);
+			} else
+			{
+
+				viewHolder = (ViewHolder) convertView.getTag();
+			}
+
+			Comments comment = comments.get(position);
+			imageLoader.displayImage(comment.author.avatar, viewHolder.ivPhoto, ImageOptions.getTransPictureOption(0));// 加载图片
+			viewHolder.tvAuthor.setText(comment.author.name);
+			viewHolder.tvDate.setText(comment.created);
+			viewHolder.tvComment.setText(comment.content);
+			return convertView;
+		}
+
+	}
+
+	/**
+	 * 编辑模式，执行保存图片的操作
+	 * */
+	private final class ActionModeOfSave implements ActionMode.Callback
+	{
+		private static final int ACTION_MODE_SAVE_PHOTO = 1;
+		private static final int GROUP_ID_DRAW = 1;
+		private int actionMode = -1;
+
+		public ActionModeOfSave(int actionMode)
+		{
+			this.actionMode = actionMode;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu)
+		{
+
+			if (actionMode == ACTION_MODE_SAVE_PHOTO)
+			{
+				menu.add(GROUP_ID_DRAW, 0, 0, "保存").setIcon(R.drawable.ic_action_download).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+			}
+			return true;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+		{
+
+			int groupId = item.getGroupId();
+			if (groupId == GROUP_ID_DRAW)
+			{
+
+				switch (item.getItemId())
+				{
+				case 0:// 保存
+
+					if (FileUtils.hasSdcard())
+					{
+
+						Photo photo = photos.get(getCurrentPhotoPosition());
+						saveImage(photo.image, new StringBuilder().append(DateUtil.getDate()).append(photo.author.getName()).toString());// new
+																																			// StringBuilder().append(photo.author.name).append(photo.created).toString()
+					} else
+					{
+
+						ToastUtil.show("没有检测到SD卡，无法保存哦！");
+					}
+					mActionMode.finish();
+					break;
+
+				default:
+					break;
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * 】 http://stackoverflow.com/questions/11642877/how-to-recognize-
+		 * whether-the-done-button-is-clicked-in-actionmode 当Contextual action
+		 * mode被关闭的时候，即用户按下返回按钮或者完成按钮的时候，这个方法会被调用到。
+		 * 因此我们不要去监听用户按下这个按钮的事件，只要处理这个回调方法就可以了。如果要监听也是可以的
+		 * 
+		 * 带有勾和叉的例子
+		 * https://code.google.com/p/romannurik-code/source/browse/misc/
+		 * #misc%2Fdonediscard%253Fstate%253Dclosed
+		 * 
+		 * http://mobile.dzone.com/articles/roman-nurik-done-discard
+		 * 
+		 * */
+		@Override
+		public void onDestroyActionMode(ActionMode mode)
+		{
+
+		}
+	}
+
+	/**
+	 * 保存图片
+	 * */
+	private void saveImage(String url, final String fileName)
+	{
+
+		imageLoader.loadImage(this, url, new ImageLoadingListener()
+		{
+			@Override
+			public void onLoadingStarted()
+			{
+				ToastUtil.show("保存中，请骚等");
+				L.e("onLoadingStarted", "true");
+			}
+
+			@Override
+			public void onLoadingFailed(FailReason failReason)
+			{
+				L.e("onLoadingFailed", "" + failReason.toString());
+				ToastUtil.show("保存失败，请重试");
+			}
+
+			@Override
+			public void onLoadingComplete(Bitmap loadedImage)
+			{
+				try
+				{
+					ImageHelper.saveFile(loadedImage, fileName, MyApplication.ImageSavePath);
+					ToastUtil.show("保存成功");
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+					L.e("error:", "fail to save bitmap");
+					ToastUtil.show("保存失败");
+				}
+			}
+
+			@Override
+			public void onLoadingCancelled()
+			{
+
+			}
+		});
+	}
+
+}

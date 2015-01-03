@@ -1,0 +1,45 @@
+package com.michael.doubanonline.bean;
+
+public class OnlineObject {
+
+	/***/
+	private String album_id;
+	/***/
+	private String image;
+	/***/
+	private String recs_count;
+	/***/
+	private String alt;
+	/***/
+	private String id;
+	/***/
+	private String thumb;
+	/***/
+	private String title;
+	/***/
+	private String related_url;
+	/***/
+	private String liked_count;
+	/***/
+	private String cascade_invite;
+	/***/
+	private String desc;
+	/***/
+	private String photo_count;
+	/***/
+	private String participant_count;
+	/***/
+	private String shuo_topic;
+	/***/
+	private String begin_time;
+	/***/
+	private String icon;
+	/***/
+	private String created;
+	/***/
+	private String cover;
+	/***/
+	private String end_time;
+	/***/
+	private String group_id;
+}

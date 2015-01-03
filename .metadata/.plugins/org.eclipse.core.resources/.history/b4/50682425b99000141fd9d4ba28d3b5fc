@@ -1,0 +1,106 @@
+package com.michael.doubanonline;
+
+import android.app.Dialog;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.actionbarsherlock.app.SherlockActivity;
+
+/**
+ * 包含对话框的基类Activity，不能将对话框放在Application中去，因为生成对话框的Context必须来自Activity
+ * 
+ * @author Michael
+ * */
+public class ActionBarBaseActivity extends SherlockActivity
+{
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		initDialog();
+	}
+	
+//	/**
+//	 * 友盟统计
+//	 * */
+//	public void onResume() 
+//	{
+//		super.onResume();
+//		MobclickAgent.onResume(this);
+//	}
+//	
+//	/**
+//	 * 友盟统计
+//	 * */
+//	public void onPause() 
+//	{
+//		super.onPause();
+//		MobclickAgent.onPause(this);
+//	}
+
+	private Dialog dialog;
+	private ProgressBar pbLoading;
+	private TextView tvTip;
+
+	private void initDialog()
+	{
+		LayoutInflater layoutInflater = this.getLayoutInflater();
+		View customDialog = layoutInflater.inflate(R.layout.layout_dialog_loading, null);
+		pbLoading = (ProgressBar) customDialog.findViewById(R.id.pbLoading);
+		tvTip = (TextView) customDialog.findViewById(R.id.tvTip);
+		dialog = new Dialog(this, R.style.custom_dialog_loading);
+		dialog.setContentView(customDialog);
+	}
+
+	/**
+	 * 显示旋转的进度条
+	 * 
+	 * */
+	public void showProgressBar()
+	{
+		pbLoading.setVisibility(View.VISIBLE);
+	}
+
+	/**
+	 * 隐藏旋转的进度条
+	 * 
+	 * */
+	public void hideProgressBar()
+	{
+		pbLoading.setVisibility(View.GONE);
+	}
+
+	public void showDialog()
+	{
+		showDialog("加载中...");
+	}
+
+	public void showDialog(String tip)
+	{
+		if (dialog != null)
+		{
+			tvTip.setText(tip);
+			dialog.show();
+		}
+	}
+
+	public void dismissDialog()
+	{
+		if (dialog != null && dialog.isShowing())
+		{
+			dialog.dismiss();
+		}
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		dismissDialog();
+	}
+
+}

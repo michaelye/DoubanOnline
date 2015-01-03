@@ -1,0 +1,40 @@
+package com.michael.doubanonline.http;
+
+/**
+ * 接口库
+ * 
+ * @author michael
+ *
+ */
+public class InterfaceLib
+{
+	
+	/**
+	 * 获取线上活动列表
+	 * */
+	public static class GetOnlineList
+	{
+		/**接口名*/
+		public static String apiActionName = "onlines";
+		
+		public static String start = "start";
+	}
+
+	
+	/**
+	 * 根据目录Id获取图片
+	 *
+	 * */
+	public static class GetImagesByCategoryId
+	{
+		/**接口名*/
+		public static String apiActionName = "getImagesByCategoryId";
+		/***/
+		public static String id = "id";
+		/***/
+		public static String pageNum = "pageNum";
+		/***/
+		public static String pageSize = "pageSize";
+	}
+	
+}

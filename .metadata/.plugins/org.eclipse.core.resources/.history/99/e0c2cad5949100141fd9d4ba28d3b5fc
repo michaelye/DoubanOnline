@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_dark" >
+
+    <com.michael.doubanonline.component.ImageViewTouchViewPager
+        android:id="@+id/zoomableViewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <SlidingDrawer
+        android:id="@+id/sdComments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:content="@+id/content"
+        android:handle="@+id/handle" >
+
+        <LinearLayout
+            android:id="@+id/handle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/actionbar_bg_trans"
+            android:gravity="center_vertical"
+            android:minHeight="48dip"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/tvDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="哈哈哈，我一定会成功的"
+                    android:textColor="#ffffff"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvAuthorAndDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="来自Michael 上传于2013-13-12 19：14：22"
+                    android:textColor="#DDDDDD"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvCommentNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_menu_start_conversation"
+                android:gravity="center_horizontal"
+                android:text="15"
+                android:textColor="@android:color/white"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_trans_listview_comments"
+            android:orientation="vertical" >
+
+            <com.michael.doubanonline.component.PullToRefreshListViewWithFooter
+                android:id="@+id/lvComments"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/ll_send"
+                android:divider="#999999"
+                android:dividerHeight="0.5dip"
+                android:listSelector="#00000000" />
+
+            <LinearLayout
+                android:id="@+id/ll_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/etComment"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_edittext"
+                    android:hint="回复"
+                    android:textColor="#404040" />
+
+                <ImageView
+                    android:id="@+id/ivSendComment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_send_button"
+                    android:clickable="true"
+                    android:minHeight="55dip"
+                    android:minWidth="55dip"
+                    android:scaleType="center"
+                    android:src="@android:drawable/ic_menu_send" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvNoComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="暂时木有评论哦！"
+                android:textColor="@color/abs__holo_blue_light"
+                android:textSize="20sp"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/pbLoading"
+                style="@style/Widget.Sherlock.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:focusable="true"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </SlidingDrawer>
+
+    <ProgressBar
+        android:id="@+id/pbLoadingBigPicture"
+        style="@android:style/Widget.Holo.Light.ProgressBar.Large"
+        android:layout_width="45dip"
+        android:layout_height="45dip"
+        android:layout_centerInParent="true" />
+
+</RelativeLayout>

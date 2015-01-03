@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <TextView 
+	    android:id="@+id/tv_title"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:singleLine="false"
+	    android:minHeight="46sp"
+	    android:paddingTop="8dp"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp"
+	    android:paddingBottom="5dp"
+	    android:gravity="center"
+	    android:textSize="17sp"
+	    android:textColor="#33b5e5"
+	    android:text="还我河山哈哈哈哈哈还我河山哈哈哈哈哈还我河山哈哈哈哈哈"
+	     />
+    
+    <View 
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#CCCCCC"
+        />
+    
+    <RelativeLayout 
+        android:id="@+id/rl_detail"
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:minHeight="46sp"
+        >
+        <TextView 
+		    android:id="@+id/tv_detail"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:singleLine="false"
+		    android:paddingTop="8dp"
+		    android:paddingLeft="3dp"
+		    android:paddingBottom="3dp"
+		    android:lines="3"
+		    android:textSize="14sp"
+		    android:textColor="#000000"
+		    android:textStyle="normal"
+		    android:text="我想说。。。请你们尽情拿各种礼物刺激我把哈经费和凤凰凤凰凤凰凤凰"
+		     />
+        <ImageView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentBottom="true"
+            android:src="@drawable/abs__spinner_ab_default_holo_light"
+            />
+    </RelativeLayout>
+	
+	<View 
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#CCCCCC"
+        />
+	
+</LinearLayout>
+
+   
