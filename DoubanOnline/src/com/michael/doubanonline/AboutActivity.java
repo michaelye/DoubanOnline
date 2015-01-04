@@ -6,7 +6,6 @@ import java.util.HashMap;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -22,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar.LayoutParams;
 import com.michael.doubanonline.base.BaseCompatableAdapter;
 import com.michael.doubanonline.util.ToastUtil;
 
@@ -55,9 +55,11 @@ public class AboutActivity extends BaseActivity{
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_about);
+		getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);//需要添加的语句  
 		iniComponent();
 		
-		this.setTitle("关于线上活动");
+//		this.setTitle("关于豆瓣Online");
+		this.setTitle("");
 		
 		data = new ArrayList<HashMap<String, Object>>();
 		setCommonDateSource();
@@ -255,9 +257,13 @@ public class AboutActivity extends BaseActivity{
 	 * */
 	private void openMyDoubanWebsiteOrEvaluateMyApp(String url){
 		
-		Uri uri = Uri.parse(url);
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
+//		Uri uri = Uri.parse(url);
+//        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+//        startActivity(intent);
+		Intent intent = new Intent(this, WebViewActivity.class);
+		intent.putExtra(WebViewActivity.KEY_TITLE, "我的豆瓣主页");
+		intent.putExtra(WebViewActivity.KEY_URL, url);
+		startActivity(intent);
 	}
 	
 	class AboutAdapter extends BaseCompatableAdapter<HashMap<String, Object>>{
@@ -291,8 +297,9 @@ public class AboutActivity extends BaseActivity{
 				
 				viewHolder.tvContent.setGravity(Gravity.LEFT);
 				viewHolder.tvContent.setPadding(8, 6, 7, 6);
-				viewHolder.tvContent.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
-				viewHolder.tvContent.setTextColor(Color.BLACK);
+				viewHolder.tvContent.setGravity(Gravity.CENTER);
+//				viewHolder.tvContent.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+				viewHolder.tvContent.setTextColor(Color.WHITE);
 				viewHolder.tvContent.setTextSize(16);
 				
 			}else if(map.get(KEY_TYPE).equals(TYPE_DECLARE_RIGHT)){
@@ -300,7 +307,7 @@ public class AboutActivity extends BaseActivity{
 				viewHolder.tvContent.setGravity(Gravity.LEFT);
 				viewHolder.tvContent.setPadding(0, 8, 0, 8);
 				viewHolder.tvContent.setGravity(Gravity.CENTER);
-				viewHolder.tvContent.setTextColor(Color.BLACK);
+				viewHolder.tvContent.setTextColor(Color.WHITE);
 				viewHolder.tvContent.setTextSize(16);
 				
 			}else if(map.get(KEY_TYPE).equals(TYPE_DECLARE_OPEN_SOURCE)){

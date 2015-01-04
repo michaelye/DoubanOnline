@@ -79,5 +79,13 @@ public class InterfaceLib
 	{
 		/**接口名*/
 		public static String apiActionName = "comments";
+		/**
+		 * 从0开始，默认为0
+		 * */
+		public static String start = "start";
+		/**
+		 * 请求的数量
+		 * */
+		public static String count = "count";
 	}
 }

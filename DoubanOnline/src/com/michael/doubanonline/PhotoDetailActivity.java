@@ -48,6 +48,7 @@ import com.michael.doubanonline.bean.Photo;
 import com.michael.doubanonline.bean.PhotoList;
 import com.michael.doubanonline.component.ImageViewTouchViewPager;
 import com.michael.doubanonline.component.PullToRefreshListViewWithFooter;
+import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewLastItemVisibleListener;
 import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewRefreshListener;
 import com.michael.doubanonline.db.DBManager;
 import com.michael.doubanonline.http.InterfaceLib;
@@ -98,7 +99,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private ArrayList<Photo> photos;
 	/** 适配器 */
 	private ZoomablePagerAdapter photosAdapter;
-	
+
 	/** 图片下载器 */
 	protected ImageLoader imageLoader;
 	/** 评论 */
@@ -107,9 +108,9 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private CommentsAdapter commentsAdapter;
 	/** 编辑模式 */
 	private ActionMode mActionMode;// 编辑模式
-	/** 数据库管理器*/
+	/** 数据库管理器 */
 	private DBManager dbManager;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -141,7 +142,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private EditText etComment;
 	/** 发送评论的按钮 */
 	private ImageView ivSendComment;
-	/** 没有评论的提示*/
+	/** 没有评论的提示 */
 	private TextView tvNoComments;
 
 	private void iniComponent()
@@ -164,7 +165,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		commentsAdapter = new CommentsAdapter(this, comments);
 		lvComments.setAdapter(commentsAdapter);
 	}
-	
+
 	/**
 	 * 没有评论的时候显示
 	 * */
@@ -172,19 +173,20 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	{
 		LayoutInflater layoutInflater = this.getLayoutInflater();
 		View emptyView = (View) layoutInflater.inflate(R.layout.layout_no_comment_empty_view, null);
-		tvNoComments = (TextView)emptyView.findViewById(R.id.tvNoComments);
+		tvNoComments = (TextView) emptyView.findViewById(R.id.tvNoComments);
 		tvNoComments.setText("评论加载中...");
 		return emptyView;
 	}
 
-	/** 所有图片的数量*/
+	/** 所有图片的数量 */
 	private int total;
-	/** 排序方式*/
+	/** 排序方式 */
 	private String sortBy;
 	/** 当前照片在photos中的索引 */
 	private int currentPhotoPosition;
 	/** 该活动的Id */
 	private String id;
+
 	@SuppressWarnings("unchecked")
 	private void getDataFromIntent()
 	{
@@ -195,7 +197,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		total = intent.getIntExtra(INTENT_KEY_TOTAL, -1);
 		sortBy = intent.getStringExtra(INTENT_KEY_SORT_BY);
 	}
-	
+
 	private void iniData()
 	{
 		for (int i = 0; i < photos.size(); i++)
@@ -214,7 +216,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		zoomableImageView.setDisplayType(DisplayType.FIT_TO_SCREEN);// 设置图片的大小模式
 		mListViews.add(layout);
 	}
-	
+
 	/**
 	 * 将评论里面的数据清空掉
 	 * */
@@ -240,10 +242,10 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 					if (total == photos.size())
 					{
 						ToastUtil.show("所有图片都加载完了哦~");
-					} 
-					else
+					} else
 					{
-						ToastUtil.show("骚等，正在加载更多~");//TODO 这个地方可以考虑去掉提示，直接在ActionBar上加上小菊花
+						ToastUtil.show("骚等，正在加载更多~");// TODO
+														// 这个地方可以考虑去掉提示，直接在ActionBar上加上小菊花
 						requestData();
 					}
 				}
@@ -262,7 +264,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 
 			}
 		});
-		
+
 		// 评论抽屉关闭
 		sdComments.setOnDrawerCloseListener(new OnDrawerCloseListener()
 		{
@@ -281,13 +283,12 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 			{
 				actionBar.hide();
 				CommentList list = getCacheComment(getPhotoId());
-				if(list != null)
+				if (list != null)
 				{
-					updateCommentListView(list);
-				}
-				else
+					updateCommentListView(list, true);
+				} else
 				{
-					requestCommentData();
+					requestCommentData(true);
 				}
 			}
 		});
@@ -298,11 +299,28 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 			@Override
 			public void onFooterListViewRefresh()
 			{
-				requestCommentData();
+				requestCommentData(true);
+			}
+		});
+
+		// 显示更多
+		lvComments.setOnFooterListViewLastItemVisibleListener(new OnFooterListViewLastItemVisibleListener()
+		{
+
+			@Override
+			public void onFooterListViewLastItemVisible()
+			{
+				if (comments.size() == totalCommentCount)
+				{
+					lvComments.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_DONE, "全部加载完毕了哦~");
+				} else
+				{
+					requestCommentData(false);
+				}
 			}
 		});
 	}
-	
+
 	/**
 	 * 获取缓存的评论数据
 	 * */
@@ -310,13 +328,13 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	{
 		String jsonCache = dbManager.getCommentCache(cacheId);
 		CommentList commentList = null;
-		if(jsonCache != null)
+		if (jsonCache != null)
 		{
 			commentList = parseComments(jsonCache);
 		}
 		return commentList;
 	}
-	
+
 	/**
 	 * 把评论数据缓存起来
 	 * */
@@ -324,7 +342,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	{
 		dbManager.insertCommentCache(cacheId, commentJson);
 	}
-	
+
 	/**
 	 * 清空所有的评论的缓存
 	 * */
@@ -333,16 +351,16 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	{
 		super.onDestroy();
 		dbManager.clearCommentCache();
-		if(requestComments != null)
+		if (requestComments != null)
 		{
 			requestComments.cancelRequest();
 		}
-		if(requestPhotoList != null)
+		if (requestPhotoList != null)
 		{
 			requestPhotoList.cancelRequest();
 		}
 	}
-	
+
 	/**
 	 * 将Json解析为Bean
 	 * */
@@ -350,10 +368,9 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	{
 		return JSON.parseObject(jsonString, PhotoList.class);
 	}
-	
-	
+
 	private RequestTask requestPhotoList;
-	
+
 	/**
 	 * 获取数据
 	 * 
@@ -380,12 +397,11 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 						int resultSize = photoList.getPhotos().size();
 						photos.addAll(photoList.getPhotos());
 						total = Integer.parseInt(photoList.getTotal());
-						for (int i = 0; i < resultSize; i++) 
+						for (int i = 0; i < resultSize; i++)
 						{
 							addViewItem();
 						}
-					} 
-					else
+					} else
 					{
 						ToastUtil.show("数据解析失败");
 					}
@@ -413,7 +429,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		map.put(InterfaceLib.GetPhotos.sortby, sortBy);
 		requestPhotoList.request("online/" + id + "/" + InterfaceLib.GetPhotos.apiActionName, map);
 	}
-	
+
 	/**
 	 * 获取当前需要从哪一个开始下载
 	 * */
@@ -425,42 +441,47 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		}
 		return photos.size();
 	}
-	
+
 	private CommentList parseComments(String jsonString)
 	{
 		return JSON.parseObject(jsonString, CommentList.class);
 	}
-	
 
+	private int totalCommentCount;
 	private RequestTask requestComments;
+
 	/**
 	 * 获取数据
 	 * 
 	 * */
-	private void requestCommentData()
+	private void requestCommentData(final boolean isClear)
 	{
-	    requestComments = new RequestTask(this, "获取图片评论");
+		requestComments = new RequestTask(this, "获取图片评论");
 		requestComments.setOnTaskResultListener2(new OnTaskResultListener2()
 		{
 			@Override
 			public void onStart()
 			{
 				setRefreshState(true);
+				lvComments.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_LOADING);
 			}
 
 			@Override
 			public void onSuccess(String jsonResponse)
 			{
-				
+
 				if (jsonResponse != null)
 				{
 					CommentList commentList = parseComments(jsonResponse);
 					if (commentList != null)
 					{
-						updateCommentListView(commentList);
-						cacheCommentData(getPhotoId(), jsonResponse);
-					}
-					else
+						totalCommentCount = Integer.parseInt(commentList.getTotal());
+						updateCommentListView(commentList, isClear);
+						if (isClear)
+						{
+							cacheCommentData(getPhotoId(), jsonResponse);
+						}
+					} else
 					{
 						ToastUtil.show("数据解析失败");
 					}
@@ -468,12 +489,14 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 				{
 					ToastUtil.show("获取数据为空");
 				}
+				lvComments.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_DONE);
 			}
 
 			@Override
 			public void onFail(String message)
 			{
 				ToastUtil.show("获取数据为空");
+				lvComments.setListViewFooterContent(PullToRefreshListViewWithFooter.LOADING_STATE_FAIL);
 			}
 
 			@Override
@@ -483,20 +506,44 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 				setRefreshState(false);
 			}
 		});
-		requestComments.request("photo/" + getPhotoId() + "/" + InterfaceLib.GetPhotoComment.apiActionName, new HashMap<String, String>());
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(InterfaceLib.GetPhotoComment.start, getCommentStart(isClear) + "");
+		map.put(InterfaceLib.GetPhotoComment.count, COMMENT_SIZE + "");
+		requestComments.request("photo/" + getPhotoId() + "/" + InterfaceLib.GetPhotoComment.apiActionName, map);
 	}
-	
-	private void updateCommentListView(CommentList list)
+
+	/**
+	 * 获取当前需要从哪一个开始下载
+	 * */
+	private int getCommentStart(boolean isClear)
 	{
-		comments.clear();
+		if (comments == null || comments.size() == 0 || isClear)
+		{
+			return 0;
+		}
+		return comments.size();
+	}
+
+	private static final int COMMENT_SIZE = 30;
+
+	private void updateCommentListView(CommentList list, boolean isClear)
+	{
+		if (isClear)
+		{
+			comments.clear();
+		}
 		comments.addAll(list.getComments());
 		commentsAdapter.notifyDataSetChanged();
-		if(comments.size() == 0)
+		if (comments.size() == 0)
 		{
 			tvNoComments.setText("暂时木有评论哦~");
 		}
+		else
+		{
+			lvComments.setFooterViewVisibility(View.VISIBLE);
+		}
 	}
-	
+
 	/**
 	 * 照片的Id
 	 * */
@@ -504,7 +551,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	{
 		return Long.parseLong(photos.get(currentPhotoPosition).id);
 	}
-	
+
 	/**
 	 * 隐藏底部的评论
 	 * */
@@ -543,7 +590,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		});
 		sdComments.startAnimation(animation);
 	}
-	
+
 	/**
 	 * 显示底部的评论
 	 * */
