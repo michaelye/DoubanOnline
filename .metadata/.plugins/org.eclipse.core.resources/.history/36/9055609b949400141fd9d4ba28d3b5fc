@@ -1,0 +1,6 @@
+package com.michael.doubanonline.bean;
+
+public class BeanBase
+{
+
+}

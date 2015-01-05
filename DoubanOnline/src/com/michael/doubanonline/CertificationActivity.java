@@ -15,7 +15,8 @@ import com.michael.doubanonline.user.UserInfo;
 import com.michael.doubanonline.util.L;
 
 /**
- * 豆瓣认证
+ * 豆瓣授权登录
+ * 只能获取用户信息，没有什么用了
  * 
  * */
 public class CertificationActivity extends RefreshActionBarActivity

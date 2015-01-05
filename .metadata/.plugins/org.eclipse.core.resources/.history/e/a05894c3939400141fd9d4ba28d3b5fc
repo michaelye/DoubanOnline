@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.michael.doubanonline"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-permission android:name = "android.permission.INTERNET"/>
+    <uses-permission android:name = "android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="21" />
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Sherlock" >
+        
+        <activity
+            android:name=".SplashActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Black.NoTitleBar" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" /> 
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
+             >
+            
+        </activity>
+        
+        <activity android:name="com.michael.doubanonline.OnlineDetailActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
+        <activity android:name="com.michael.doubanonline.PhotoDetailActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/><!-- android:theme="@style/Theme.Sherlock.Light.DarkActionBar" -->
+        <activity android:name="com.michael.doubanonline.AboutActivity" android:theme="@style/activity_dialog"/><!-- @style/Theme.Sherlock.Dialog 过期了 -->
+        <activity android:name="com.michael.doubanonline.CertificationActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
+        <activity android:name="com.michael.doubanonline.WebViewActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
+        
+    </application>
+
+</manifest>

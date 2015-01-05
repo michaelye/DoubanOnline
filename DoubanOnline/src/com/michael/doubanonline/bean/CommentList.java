@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 返回的评论
  * */
-public class CommentList implements Serializable
+public class CommentList extends BeanBase implements Serializable
 {
 
 	/**

@@ -6,7 +6,8 @@ import java.util.List;
  * 照片列表
  * 
  * */
-public class PhotoList {
+public class PhotoList extends BeanBase
+{
 
 	/**
 	 * 本次返回的数量
@@ -33,51 +34,63 @@ public class PhotoList {
 	 * */
 	private List<Photo> photos;
 
-	public String getCount() {
+	public String getCount()
+	{
 		return count;
 	}
 
-	public void setCount(String count) {
+	public void setCount(String count)
+	{
 		this.count = count;
 	}
 
-	public String getStart() {
+	public String getStart()
+	{
 		return start;
 	}
 
-	public void setStart(String start) {
+	public void setStart(String start)
+	{
 		this.start = start;
 	}
 
-	public String getSortby() {
+	public String getSortby()
+	{
 		return sortby;
 	}
 
-	public void setSortby(String sortby) {
+	public void setSortby(String sortby)
+	{
 		this.sortby = sortby;
 	}
 
-	public String getTotal() {
+	public String getTotal()
+	{
 		return total;
 	}
 
-	public void setTotal(String total) {
+	public void setTotal(String total)
+	{
 		this.total = total;
 	}
 
-	public String getOrder() {
+	public String getOrder()
+	{
 		return order;
 	}
 
-	public void setOrder(String order) {
+	public void setOrder(String order)
+	{
 		this.order = order;
 	}
 
-	public List<Photo> getPhotos() {
+	public List<Photo> getPhotos()
+	{
 		return photos;
 	}
 
-	public void setPhotos(List<Photo> photos) {
+	public void setPhotos(List<Photo> photos)
+	{
 		this.photos = photos;
 	}
 

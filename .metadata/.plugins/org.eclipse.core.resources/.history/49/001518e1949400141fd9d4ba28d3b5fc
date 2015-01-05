@@ -1,0 +1,11 @@
+package com.michael.doubanonline.bean;
+
+import java.io.Serializable;
+
+/**
+ * Bean的基类
+ * */
+public class BeanBase 
+{
+
+}

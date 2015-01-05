@@ -15,10 +15,10 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.alibaba.fastjson.JSON;
+import com.michael.doubanonline.base.BaseActivity;
 import com.michael.doubanonline.bean.OnlineList;
 import com.michael.doubanonline.bean.OnlineObject;
 import com.michael.doubanonline.component.PullToRefreshListViewWithFooter;
@@ -27,8 +27,9 @@ import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFoot
 import com.michael.doubanonline.db.DBManager;
 import com.michael.doubanonline.http.InterfaceLib;
 import com.michael.doubanonline.http.RequestTask;
-import com.michael.doubanonline.http.RequestTask.OnTaskResultListener2;
+import com.michael.doubanonline.http.RequestTask.OnTaskResultListener;
 import com.michael.doubanonline.util.ToastUtil;
+//import android.widget.LinearLayout;
 
 
 /**
@@ -39,7 +40,7 @@ import com.michael.doubanonline.util.ToastUtil;
  * 给AndroidClient一个是否刷新和缓存失效的时间
  * 
  * */
-public class MainActivity extends SherlockActivity implements ActionBar.OnNavigationListener{
+public class MainActivity extends BaseActivity implements ActionBar.OnNavigationListener{
 
 	/** 用来展示线上活动的ListView*/
 	private PullToRefreshListViewWithFooter lvOnlines;
@@ -83,7 +84,7 @@ public class MainActivity extends SherlockActivity implements ActionBar.OnNaviga
 	private View getEmptyView()
 	{
 		LayoutInflater layoutInflater = this.getLayoutInflater();
-		View emptyView = (View) layoutInflater.inflate(R.layout.layout_no_comment_empty_view, null);
+		View emptyView = (View) layoutInflater.inflate(R.layout.layout_no_comment_empty_view, lvOnlines, false);
 		TextView tvNoComments = (TextView)emptyView.findViewById(R.id.tvNoComments);
 		tvNoComments.setText("没有数据，请检查网络~");
 		tvNoComments.setTextSize(18);
@@ -168,20 +169,7 @@ public class MainActivity extends SherlockActivity implements ActionBar.OnNaviga
 		actionBar.setHomeButtonEnabled(true);//图标可以点击
 //		actionBar.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.action_bar_bg));
 		actionBar.setDisplayShowCustomEnabled(true);
-		//ActionBar右边的圈圈
-//		LinearLayout ll = new LinearLayout(this);
-//		ImageView ivRotate = new ImageView(this);
-//		ivRotate.setImageResource(android.R.drawable.ic_menu_rotate);
-//		ivRotate.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				//刷新
-////				getOnlineList(getCurrOnlineType());
-//			}
-//		});
-//		ll.addView(ivRotate);
-		
+		//正在加载的小圈圈的另一种实现方式
 //		LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //		View view = layoutInflater.inflate(R.layout.layout_actionbar_progressbar, null);
 //		actionBar.setCustomView(view, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.RIGHT|Gravity.CENTER));
@@ -196,7 +184,7 @@ public class MainActivity extends SherlockActivity implements ActionBar.OnNaviga
 	private void requestData(final boolean isPullToRefresh)
 	{
 		RequestTask request = new RequestTask(this, "获取活动列表");
-		request.setOnTaskResultListener2(new OnTaskResultListener2() 
+		request.setOnTaskResultListener2(new OnTaskResultListener() 
 		{
 			@Override
 			public void onStart()
@@ -324,7 +312,7 @@ public class MainActivity extends SherlockActivity implements ActionBar.OnNaviga
 			
 			case 3:
 //				UserInfo userInfo = AccountHelper.getUserInfo(this);
-				//TODO
+				//TODO 无法调用我的活动的接口，暂时保留
 				break;
 	
 			default:

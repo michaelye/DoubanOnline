@@ -9,7 +9,7 @@ import android.util.Log;
  * */
 public class L
 {
-	public static final boolean isDebug = true;// Log日志的开关
+	public static boolean isDebug = true;// Log日志的开关
 
 	public static void e(String tag, String message)
 	{

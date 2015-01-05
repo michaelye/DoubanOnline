@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -53,7 +52,7 @@ import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFoot
 import com.michael.doubanonline.db.DBManager;
 import com.michael.doubanonline.http.InterfaceLib;
 import com.michael.doubanonline.http.RequestTask;
-import com.michael.doubanonline.http.RequestTask.OnTaskResultListener2;
+import com.michael.doubanonline.http.RequestTask.OnTaskResultListener;
 import com.michael.doubanonline.util.DateUtil;
 import com.michael.doubanonline.util.FileUtils;
 import com.michael.doubanonline.util.ImageHelper;
@@ -138,10 +137,10 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private TextView tvCommentNum;
 	/** 显示评论 */
 	private PullToRefreshListViewWithFooter lvComments;
-	/** 输入评论的文本框 */
-	private EditText etComment;
-	/** 发送评论的按钮 */
-	private ImageView ivSendComment;
+	// /** 输入评论的文本框 */
+	// private EditText etComment;
+	// /** 发送评论的按钮 */
+	// private ImageView ivSendComment;
 	/** 没有评论的提示 */
 	private TextView tvNoComments;
 
@@ -154,8 +153,8 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		tvCommentNum = (TextView) findViewById(R.id.tvCommentNum);
 		lvComments = (PullToRefreshListViewWithFooter) findViewById(R.id.lvComments);
 		lvComments.setEmptyView(getEmptyView());
-		etComment = (EditText) findViewById(R.id.etComment);
-		ivSendComment = (ImageView) findViewById(R.id.ivSendComment);
+		// etComment = (EditText) findViewById(R.id.etComment);
+		// ivSendComment = (ImageView) findViewById(R.id.ivSendComment);
 		mListViews = new ArrayList<View>();
 		photos = new ArrayList<Photo>();
 		photosAdapter = new ZoomablePagerAdapter();
@@ -172,7 +171,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private View getEmptyView()
 	{
 		LayoutInflater layoutInflater = this.getLayoutInflater();
-		View emptyView = (View) layoutInflater.inflate(R.layout.layout_no_comment_empty_view, null);
+		View emptyView = (View) layoutInflater.inflate(R.layout.layout_no_comment_empty_view, lvComments, false);
 		tvNoComments = (TextView) emptyView.findViewById(R.id.tvNoComments);
 		tvNoComments.setText("评论加载中...");
 		return emptyView;
@@ -211,7 +210,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 
 	private void addViewItem()
 	{
-		View layout = mInflater.inflate(R.layout.view_pager_layout, null);
+		View layout = mInflater.inflate(R.layout.view_pager_layout, new LinearLayout(this), false);
 		ImageViewTouch zoomableImageView = (ImageViewTouch) layout.findViewById(R.id.zoomableImageView);
 		zoomableImageView.setDisplayType(DisplayType.FIT_TO_SCREEN);// 设置图片的大小模式
 		mListViews.add(layout);
@@ -242,10 +241,10 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 					if (total == photos.size())
 					{
 						ToastUtil.show("所有图片都加载完了哦~");
-					} else
+					} 
+					else
 					{
-						ToastUtil.show("骚等，正在加载更多~");// TODO
-														// 这个地方可以考虑去掉提示，直接在ActionBar上加上小菊花
+						ToastUtil.show("骚等，正在加载更多~");
 						requestData();
 					}
 				}
@@ -378,7 +377,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private void requestData()
 	{
 		requestPhotoList = new RequestTask(this, "获取图片列表");
-		requestPhotoList.setOnTaskResultListener2(new OnTaskResultListener2()
+		requestPhotoList.setOnTaskResultListener2(new OnTaskResultListener()
 		{
 			@Override
 			public void onStart()
@@ -457,7 +456,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 	private void requestCommentData(final boolean isClear)
 	{
 		requestComments = new RequestTask(this, "获取图片评论");
-		requestComments.setOnTaskResultListener2(new OnTaskResultListener2()
+		requestComments.setOnTaskResultListener2(new OnTaskResultListener()
 		{
 			@Override
 			public void onStart()
@@ -537,8 +536,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 		if (comments.size() == 0)
 		{
 			tvNoComments.setText("暂时木有评论哦~");
-		}
-		else
+		} else
 		{
 			lvComments.setFooterViewVisibility(View.VISIBLE);
 		}
@@ -857,7 +855,7 @@ public class PhotoDetailActivity extends ShareActionBarActivity
 
 			if (convertView == null)
 			{
-				convertView = super.layoutInflater.inflate(R.layout.list_item_comments, null);
+				convertView = super.layoutInflater.inflate(R.layout.list_item_comments, parent, false);
 				viewHolder = new ViewHolder();
 				viewHolder.ivPhoto = (ImageView) convertView.findViewById(R.id.iv_photo);
 				viewHolder.tvAuthor = (TextView) convertView.findViewById(R.id.tv_author);

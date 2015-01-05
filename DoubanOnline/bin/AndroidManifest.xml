@@ -31,15 +31,10 @@
                 <category android:name="android.intent.category.LAUNCHER" /> 
             </intent-filter>
         </activity>
-        <activity
-            android:name=".MainActivity"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
-             >
-            
-        </activity>
         
+        <activity android:name=".MainActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
         <activity android:name="com.michael.doubanonline.OnlineDetailActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
-        <activity android:name="com.michael.doubanonline.PhotoDetailActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/><!-- android:theme="@style/Theme.Sherlock.Light.DarkActionBar" -->
+        <activity android:name="com.michael.doubanonline.PhotoDetailActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
         <activity android:name="com.michael.doubanonline.AboutActivity" android:theme="@style/activity_dialog"/><!-- @style/Theme.Sherlock.Dialog 过期了 -->
         <activity android:name="com.michael.doubanonline.CertificationActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>
         <activity android:name="com.michael.doubanonline.WebViewActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar"/>

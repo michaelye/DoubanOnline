@@ -18,13 +18,12 @@ public class VersionUtil
 		try
 		{
 			pInfo = MyApplication.applicationContext.getPackageManager().getPackageInfo(MyApplication.applicationContext.getPackageName(), 0);
-		}
-		catch (NameNotFoundException e)
+		} catch (NameNotFoundException e)
 		{
 			e.printStackTrace();
 		}
-		
-		if(pInfo != null)
+
+		if (pInfo != null)
 		{
 			version = pInfo.versionCode;
 		}

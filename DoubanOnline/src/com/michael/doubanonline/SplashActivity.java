@@ -12,56 +12,51 @@ import android.widget.ImageView;
  * 启动界面
  * 
  * */
-public class SplashActivity extends Activity 
+public class SplashActivity extends Activity
 {
 
-//    private final int SPLASH_DISPLAY_LENGTH = 1300;
+	/**
+	 * 豆瓣Logo
+	 * 
+	 * 旋转动画结束的时候跳转到MainActivity
+	 * 
+	 * */
+	private ImageView ivImage;
 
-    private ImageView ivImage;
-    
-    @Override
-    public void onCreate(Bundle bundle) 
-    {
-        super.onCreate(bundle);
-        setContentView(R.layout.activity_splash);
-//        new Handler().postDelayed(new Runnable(){
-//            @Override
-//            public void run() {
-//                Intent mainIntent = new Intent(SplashActivity.this,MainActivity.class);
-//                SplashActivity.this.startActivity(mainIntent);
-//                SplashActivity.this.finish();
-//            }
-//        }, SPLASH_DISPLAY_LENGTH);
-        
-        ivImage = (ImageView)findViewById(R.id.ivImage);
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.splash_rotate);
-        animation.setAnimationListener(new AnimationListener()
+	@Override
+	public void onCreate(Bundle bundle)
+	{
+		super.onCreate(bundle);
+		setContentView(R.layout.activity_splash);
+
+		ivImage = (ImageView) findViewById(R.id.ivImage);
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.splash_rotate);
+		animation.setAnimationListener(new AnimationListener()
 		{
-			
+
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				
+
 			}
-			
+
 			@Override
 			public void onAnimationRepeat(Animation animation)
 			{
-				
+
 			}
-			
+
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				Intent mainIntent = new Intent(SplashActivity.this,MainActivity.class);
-              SplashActivity.this.startActivity(mainIntent);
-              overridePendingTransition(R.anim.zoom_in, R.anim.zoom_out);
-              SplashActivity.this.finish();
+				Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+				SplashActivity.this.startActivity(mainIntent);
+				overridePendingTransition(R.anim.zoom_in, R.anim.zoom_out);
+				SplashActivity.this.finish();
 			}
 		});
-        animation.setFillAfter(true);
-        ivImage.startAnimation(animation);
-    }
-    
-}
+		animation.setFillAfter(true);
+		ivImage.startAnimation(animation);
+	}
 
+}

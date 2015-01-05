@@ -1,0 +1,16 @@
+package com.michael.doubanonline.bean;
+
+import java.io.Serializable;
+
+/**
+ * Bean的基类
+ * */
+public class BeanBase implements Serializable
+{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+}

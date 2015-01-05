@@ -11,14 +11,12 @@ import android.widget.LinearLayout.LayoutParams;
 import com.michael.doubanonline.base.BaseCompatableAdapter;
 import com.michael.doubanonline.bean.Photo;
 import com.michael.doubanonline.component.ClickEffectImageView;
-import com.michael.doubanonline.util.L;
 import com.michael.doubanonline.util.MathUtil;
 import com.michael.doubanonline.util.ScreenUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
- * 重载getItem和getView
- * 
+ * 活动主页的适配器
  * 
  * */
 public class OnlineDetailAdapter extends BaseCompatableAdapter<Photo>
@@ -66,7 +64,7 @@ public class OnlineDetailAdapter extends BaseCompatableAdapter<Photo>
 		if (convertView == null)
 		{
 
-			convertView = super.layoutInflater.inflate(R.layout.list_item_detail, null);
+			convertView = super.layoutInflater.inflate(R.layout.list_item_detail, parent, false);
 			viewHolder = new ViewHolder();
 			viewHolder.ivOne = (ClickEffectImageView) convertView.findViewById(R.id.ivOne);
 			viewHolder.ivTwo = (ClickEffectImageView) convertView.findViewById(R.id.ivTwo);
@@ -122,11 +120,6 @@ public class OnlineDetailAdapter extends BaseCompatableAdapter<Photo>
 				break;
 			}
 			Photo photo = data.get(realIndex);
-			// count最大为100
-			// 相册https://api.douban.com/v2/album/84733852/photos?apikey=0e4b060dd9b8b2382ae112298d2a16a8&start=10&count=100&order=desc&sortby=time
-			// 照片https://api.douban.com/v2/online/11454257/photos?apikey=0e4b060dd9b8b2382ae112298d2a16a8&start=10&count=100&order=desc&sortby=time
-			// vote
-			L.d("next_photo:", photo.next_photo);// https://api.douban.com/v2/photo/1903858268
 			switch (i)
 			{
 			case 0:
@@ -180,31 +173,12 @@ public class OnlineDetailAdapter extends BaseCompatableAdapter<Photo>
 				break;
 			}
 			setClickedPhotoPosition(v, location);
-			// intentToPhotoDetail(getPhotoObject(v, location));
 			if (onPictureClick != null)
 			{
 				onPictureClick.onClick(getClickedPhotoPosition());
 			}
 		}
 	};
-
-	/**
-	 * 根据照片的Id跳转到显示照片详细的界面
-	 * 
-	 * @param photoId
-	 */
-	// private void intentToPhotoDetail(Photo photo){
-	//
-	// Intent intent = new Intent(context, PhotoDetailActivity.class);
-	// intent.putExtra(PhotoDetailActivity.INTENT_KEY_TOTAL, );
-	// intent.putExtra(PhotoDetailActivity.INTENT_KEY_PHOTO_POSITION,
-	// getClickedPhotoPosition());
-	// intent.putExtra(PhotoDetailActivity.INTENT_KEY_ID,
-	// OnlineDetailActivity.id);
-	// intent.putExtra(PhotoDetailActivity.INTENT_KEY_DATA_LIST, super.data);
-	// intent.putExtra(PhotoDetailActivity.INTENT_KEY_SORT_BY, );
-	// context.startActivity(intent);
-	// }
 
 	private OnPictureClick onPictureClick;
 
@@ -217,22 +191,6 @@ public class OnlineDetailAdapter extends BaseCompatableAdapter<Photo>
 	{
 		public void onClick(int position);
 	}
-
-	/**
-	 * 获取相片的Id
-	 * 
-	 * @param v
-	 *            被点击的View对象
-	 * @param location
-	 *            被点击的View在当前ListItem中的位置
-	 * @return
-	 */
-	// private Photo getPhotoObject(View v, int location){
-	//
-	// int position = (Integer) v.getTag();
-	// Photo photo = super.data.get(position*4 + location);
-	// return photo;
-	// }
 
 	private int clickedPosition = -1;
 

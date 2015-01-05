@@ -1,10 +1,5 @@
 package com.michael.doubanonline.util;
 
-import android.graphics.Bitmap;
-import android.widget.ImageView;
-
-import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
-import com.nostra13.universalimageloader.utils.L;
 
 /**
  *

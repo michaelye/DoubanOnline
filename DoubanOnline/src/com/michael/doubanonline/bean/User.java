@@ -2,29 +2,29 @@ package com.michael.doubanonline.bean;
 
 import java.io.Serializable;
 
-
 /**
  * 简版用户
  * 
  * */
-public class User implements Serializable{
+public class User extends BeanBase implements Serializable
+{
 
-	
 	private static final long serialVersionUID = 1L;
-	
-	/** id*/
+
+	/** id */
 	public String id;
-	/** 姓名*/
+	/** 姓名 */
 	public String name;
-	/** 该用户的uid*/
+	/** 该用户的uid */
 	public String uid;
-	/** 相关的链接，链接到该用户的个人空间*/
+	/** 相关的链接，链接到该用户的个人空间 */
 	public String alt;
-	/** 头像*/
+	/** 头像 */
 	public String avatar;
-	
+
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuilder builder = new StringBuilder();
 		builder.append("User [id=");
 		builder.append(id);
@@ -37,10 +37,11 @@ public class User implements Serializable{
 		builder.append(", avatar=");
 		builder.append(avatar);
 		return builder.toString();
-		}
-	
+	}
+
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(Object o)
+	{
 		return false;
 	}
 }

@@ -5,7 +5,8 @@ import java.util.List;
 /**
  * 活动列表
  * */
-public class OnlineList {
+public class OnlineList extends BeanBase
+{
 
 	/**
 	 * 本次返回的数量
@@ -24,35 +25,43 @@ public class OnlineList {
 	 * */
 	private List<OnlineObject> onlines;
 
-	public String getCount() {
+	public String getCount()
+	{
 		return count;
 	}
 
-	public void setCount(String count) {
+	public void setCount(String count)
+	{
 		this.count = count;
 	}
 
-	public String getStart() {
+	public String getStart()
+	{
 		return start;
 	}
 
-	public void setStart(String start) {
+	public void setStart(String start)
+	{
 		this.start = start;
 	}
 
-	public String getTotal() {
+	public String getTotal()
+	{
 		return total;
 	}
 
-	public void setTotal(String total) {
+	public void setTotal(String total)
+	{
 		this.total = total;
 	}
 
-	public List<OnlineObject> getOnlines() {
+	public List<OnlineObject> getOnlines()
+	{
 		return onlines;
 	}
 
-	public void setOnlines(List<OnlineObject> onlines) {
+	public void setOnlines(List<OnlineObject> onlines)
+	{
 		this.onlines = onlines;
 	}
 

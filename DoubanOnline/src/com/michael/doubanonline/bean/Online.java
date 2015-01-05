@@ -2,70 +2,69 @@ package com.michael.doubanonline.bean;
 
 import java.io.Serializable;
 
-
-
 /**
  * 线上活动对象
  * */
-public class Online implements Serializable{
+public class Online extends BeanBase implements Serializable
+{
 
-	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	/** id是String类型的*/
+
+	/** id是String类型的 */
 	public String id;
-	/** 链接地址*/
+	/** 链接地址 */
 	public String alt;
-	/** 标题*/
+	/** 标题 */
 	public String title;
-	/** 描述*/
+	/** 描述 */
 	public String desc;
-	/** 标签*/
+	/** 标签 */
 	public String tags;
-	/** 创建时间*/
+	/** 创建时间 */
 	public String created;
-	/** 开始时间*/
+	/** 开始时间 */
 	public String begin_time;
-	/** 结束时间*/
+	/** 结束时间 */
 	public String end_time;
-	/** 相关的链接*/
+	/** 相关的链接 */
 	public String related_url;
-	/** 对应广播的#主题#*/
+	/** 对应广播的#主题# */
 	public String shuo_topic;
-	/** 用户能不能邀请友邻加入*/
+	/** 用户能不能邀请友邻加入 */
 	public boolean cascade_invite;
-	/** 关联小组的id*/
+	/** 关联小组的id */
 	public String group_id;
-	/** 对应相册的id*/
+	/** 对应相册的id */
 	public String album_id;
-	/** 参加人数*/
+	/** 参加人数 */
 	public long participant_count;
-	/** 照片数*/
+	/** 照片数 */
 	public long photo_count;
-	/** 喜欢数*/
+	/** 喜欢数 */
 	public long liked_count;
-	/** 推荐数*/
+	/** 推荐数 */
 	public long recs_count;
-	/** icon*/
+	/** icon */
 	public String icon;
-	/** thumb*/
+	/** thumb */
 	public String thumb;
-	/** cover*/
+	/** cover */
 	public String cover;
-	/** image*/
+	/** image */
 	public String image;
-	/** 用户*/
+	/** 用户 */
 	public User owner;
-	/** 当前用户是否喜欢*/
+	/** 当前用户是否喜欢 */
 	public boolean liked = false;
-	/** 当前用户是否参加*/
+	/** 当前用户是否参加 */
 	public boolean joined = false;
-	
+
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuilder builder = new StringBuilder();
 		builder.append("Online [id=");
 		builder.append(id);
@@ -120,7 +119,8 @@ public class Online implements Serializable{
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(Object o)
+	{
 		return false;
 	}
 

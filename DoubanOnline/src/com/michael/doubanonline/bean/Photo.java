@@ -2,13 +2,13 @@ package com.michael.doubanonline.bean;
 
 import java.io.Serializable;
 
-
 /**
  * 照片
  * 
  * */
-public class Photo implements Serializable{
-	 private static final long serialVersionUID = 1L;
+public class Photo extends BeanBase implements Serializable
+{
+	private static final long serialVersionUID = 1L;
 
 	/** id */
 	public String id;
@@ -52,12 +52,14 @@ public class Photo implements Serializable{
 	public String sizes;
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(Object o)
+	{
 		return false;
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuilder builder = new StringBuilder();
 		builder.append("Photo [id=");
 		builder.append(id);

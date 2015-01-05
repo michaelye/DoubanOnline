@@ -2,10 +2,12 @@ package com.michael.doubanonline.bean;
 
 import java.io.Serializable;
 
+
 /**
  * 每张照片的用户信息
  * */
-public class Author implements Serializable{
+public class Author extends BeanBase implements Serializable
+{
 
 	/**
 	 * 
@@ -29,59 +31,95 @@ public class Author implements Serializable{
 	private String id;
 	/***/
 	private String large_avatar;
-	public String getName() {
+
+	public String getName()
+	{
 		return name;
 	}
-	public void setName(String name) {
+
+	public void setName(String name)
+	{
 		this.name = name;
 	}
-	public String getIs_banned() {
+
+	public String getIs_banned()
+	{
 		return is_banned;
 	}
-	public void setIs_banned(String is_banned) {
+
+	public void setIs_banned(String is_banned)
+	{
 		this.is_banned = is_banned;
 	}
-	public String getIs_suicide() {
+
+	public String getIs_suicide()
+	{
 		return is_suicide;
 	}
-	public void setIs_suicide(String is_suicide) {
+
+	public void setIs_suicide(String is_suicide)
+	{
 		this.is_suicide = is_suicide;
 	}
-	public String getAvatar() {
+
+	public String getAvatar()
+	{
 		return avatar;
 	}
-	public void setAvatar(String avatar) {
+
+	public void setAvatar(String avatar)
+	{
 		this.avatar = avatar;
 	}
-	public String getUid() {
+
+	public String getUid()
+	{
 		return uid;
 	}
-	public void setUid(String uid) {
+
+	public void setUid(String uid)
+	{
 		this.uid = uid;
 	}
-	public String getAlt() {
+
+	public String getAlt()
+	{
 		return alt;
 	}
-	public void setAlt(String alt) {
+
+	public void setAlt(String alt)
+	{
 		this.alt = alt;
 	}
-	public String getType() {
+
+	public String getType()
+	{
 		return type;
 	}
-	public void setType(String type) {
+
+	public void setType(String type)
+	{
 		this.type = type;
 	}
-	public String getId() {
+
+	public String getId()
+	{
 		return id;
 	}
-	public void setId(String id) {
+
+	public void setId(String id)
+	{
 		this.id = id;
 	}
-	public String getLarge_avatar() {
+
+	public String getLarge_avatar()
+	{
 		return large_avatar;
 	}
-	public void setLarge_avatar(String large_avatar) {
+
+	public void setLarge_avatar(String large_avatar)
+	{
 		this.large_avatar = large_avatar;
 	}
-	
+
 }

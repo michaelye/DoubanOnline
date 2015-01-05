@@ -1,0 +1,39 @@
+package com.michael.doubanonline;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
+public class ImageOptions
+{
+	
+	/**
+	 * 图片加载的时候，不显示
+	 * 
+	 * */
+	public static DisplayImageOptions getTransPictureOption(int corner)
+	{
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.bg_trans)
+		.showImageForEmptyUri(R.drawable.bg_trans)
+		.cacheInMemory().cacheOnDisc()
+		.displayer(new RoundedBitmapDisplayer(corner))// 圆角图片RectBitmapDisplayer是矩形图片，但是显示有问题，RoundedBitmapDisplayer就没问题，corner为0就是正方形的效果
+		.build();
+		return options;
+	}
+	
+
+	
+	/**
+	 * 图片加载的时候，显示灰色的图片
+	 * 
+	 * */
+	public static DisplayImageOptions getGrayPictureOption(int corner)
+	{
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.gray_background)
+		.showImageForEmptyUri(R.drawable.gray_background)
+		.cacheInMemory().cacheOnDisc().displayer(new RoundedBitmapDisplayer(corner))
+		.build();
+		return options;
+	}
+}

@@ -8,7 +8,8 @@ import android.util.DisplayMetrics;
  * 
  * @author Michael
  * */
-public class ScreenUtil {
+public class ScreenUtil
+{
 
 	/**
 	 * 获取屏幕的宽度
@@ -18,10 +19,10 @@ public class ScreenUtil {
 	 * 
 	 * @return int width
 	 * */
-	public static int getScreenWidth(Context context) {
+	public static int getScreenWidth(Context context)
+	{
 
-		DisplayMetrics dm = context.getApplicationContext().getResources()
-				.getDisplayMetrics();
+		DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
 
 		return dm.widthPixels;
 	}
@@ -34,10 +35,10 @@ public class ScreenUtil {
 	 * 
 	 * @return int width
 	 * */
-	public static int getScreenHeight(Context context) {
+	public static int getScreenHeight(Context context)
+	{
 
-		DisplayMetrics dm = context.getApplicationContext().getResources()
-				.getDisplayMetrics();
+		DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
 
 		return dm.heightPixels;
 

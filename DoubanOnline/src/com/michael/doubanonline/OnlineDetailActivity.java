@@ -19,13 +19,13 @@ import com.michael.doubanonline.OnlineDetailAdapter.OnPictureClick;
 import com.michael.doubanonline.base.ShareActionBarActivity;
 import com.michael.doubanonline.bean.Photo;
 import com.michael.doubanonline.bean.PhotoList;
-import com.michael.doubanonline.component.DialogUtil;
 import com.michael.doubanonline.component.PullToRefreshListViewWithFooter;
 import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewLastItemVisibleListener;
 import com.michael.doubanonline.component.PullToRefreshListViewWithFooter.OnFooterListViewRefreshListener;
+import com.michael.doubanonline.dialog.DialogUtil;
 import com.michael.doubanonline.http.InterfaceLib;
 import com.michael.doubanonline.http.RequestTask;
-import com.michael.doubanonline.http.RequestTask.OnTaskResultListener2;
+import com.michael.doubanonline.http.RequestTask.OnTaskResultListener;
 import com.michael.doubanonline.util.ToastUtil;
 
 /**
@@ -176,7 +176,7 @@ public class OnlineDetailActivity extends ShareActionBarActivity implements Acti
 	private void requestData(final boolean isClear)
 	{
 	    requestPhotoList = new RequestTask(this, "获取图片列表");
-		requestPhotoList.setOnTaskResultListener2(new OnTaskResultListener2()
+		requestPhotoList.setOnTaskResultListener2(new OnTaskResultListener()
 		{
 			@Override
 			public void onStart()
@@ -263,9 +263,8 @@ public class OnlineDetailActivity extends ShareActionBarActivity implements Acti
 	 * */
 	private void iniListViewHeader()
 	{
-
 		LayoutInflater layoutInflater = this.getLayoutInflater();
-		View headerView = (View) layoutInflater.inflate(R.layout.list_header_detail, null);
+		View headerView = (View) layoutInflater.inflate(R.layout.list_header_detail, lvImages.getRefreshableView(), false);
 		TextView tvTitle = (TextView) headerView.findViewById(R.id.tv_title);
 		TextView tvDetail = (TextView) headerView.findViewById(R.id.tv_detail);
 		tvTitle.setClickable(true);

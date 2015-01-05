@@ -12,7 +12,7 @@ import com.michael.doubanonline.util.L;
 import com.michael.doubanonline.util.ToastUtil;
 
 /**
- * 显示网页
+ * 显示一个网页
  * */
 public class WebViewActivity extends RefreshActionBarActivity
 {
@@ -73,19 +73,6 @@ public class WebViewActivity extends RefreshActionBarActivity
 		wvShow = (WebView) findViewById(R.id.web_view);
 		
 		String url = getIntent().getStringExtra(KEY_URL);
-
-		/**
-		 * wvShow.setDownloadListener(new DownloadListener() {
-		 * 
-		 * @Override public void onDownloadStart(String url, String userAgent,
-		 *           String contentDisposition, String mimetype, long
-		 *           contentLength) { // 监听下载功能，当用户点击下载链接的时候，直接调用系统的浏览器来下载
-		 * 
-		 *           Uri uri = Uri.parse(url); Intent intent = new
-		 *           Intent(Intent.ACTION_VIEW, uri); startActivity(intent); }
-		 *           });
-		 */
-//		final Handler handler = new Handler();
 		wvShow.setWebViewClient(new WebViewClient() {
 
 			@Override
@@ -93,20 +80,6 @@ public class WebViewActivity extends RefreshActionBarActivity
 			{
 				// 页面加载完毕
 				super.onPageFinished(view, url);
-//				handler.post(new Runnable() {
-//					@Override
-//					public void run()
-//					{
-//						// 调用js，隐藏页面的上面的元素，这段js要放到服务器上面去
-//						 if(null != hiddenJS && !hiddenJS.equals(""))
-//						 {
-//						 //
-//						 wvShow.loadUrl("javascript:(function(){var banner = document.getElementById('j-banner');var footer = document.getElementsByTagName('footer');var header = document.getElementsByTagName('header');var groupLast = document.getElementsByClassName('group-last');var groupOther = document.getElementsByClassName('J_group-other');var moreDetail = document.getElementsByClassName('J_more-detail');var infoA = document.getElementsByClassName('info-a');if (banner) banner.style.display = 'none';if (footer[0]) footer[0].style.display = 'none';if (header[0]) header[0].style.display = 'none';if (groupLast[0]) groupLast[0].style.display = 'none';if (groupOther[0]) groupOther[0].style.display = 'none';if (moreDetail[0]) moreDetail[0].style.display = 'none';if (infoA[0]) infoA[0].parentNode.parentNode.parentNode.style.display = 'none';})()");
-//						 wvShow.loadUrl(hiddenJS);
-//						 }
-//
-//					}
-//				});
 				setRefreshState(false);
 			}
 
@@ -119,9 +92,6 @@ public class WebViewActivity extends RefreshActionBarActivity
 			}
 
 		});
-//		wvShow.getSettings().setJavaScriptEnabled(true);// 设置支持脚本
-//		wvShow.getSettings().setBuiltInZoomControls(true);// 设置支持缩放
-//		wvShow.getSettings().setDefaultZoom(ZoomDensity.FAR);// 屏幕自适应网页,如果没有这个，在低分辨率的手机上显示可能会异常
 		if (url != null && !url.equals(""))
 		{
 			wvShow.loadUrl(url);

@@ -8,7 +8,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.actionbarsherlock.widget.ShareActionProvider.OnShareTargetSelectedListener;
-import com.michael.doubanonline.BaseActivity;
 import com.michael.doubanonline.R;
 import com.michael.doubanonline.util.L;
 import com.michael.doubanonline.util.ToastUtil;
@@ -65,7 +64,7 @@ public class ShareActionBarActivity extends BaseActivity {
 						return true;
 					}
 				});
-		//TODO 隐藏掉
+		//TODO 因为没有接口，无法实现，所以隐藏掉
 		menu.findItem(R.id.menu_camera).setVisible(false);
 		//是否已经参加了这个活动
 		SubMenu subMenu = menu.findItem(R.id.menu_camera).getSubMenu();

@@ -1,0 +1,44 @@
+package com.michael.doubanonline;
+
+import android.os.Bundle;
+
+import com.actionbarsherlock.app.SherlockActivity;
+
+/**
+ * 
+ * @author Michael
+ * */
+public class BaseActivity extends SherlockActivity
+{
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+	}
+
+	// /**
+	// * 友盟统计
+	// * */
+	// public void onResume()
+	// {
+	// super.onResume();
+	// MobclickAgent.onResume(this);
+	// }
+	//
+	// /**
+	// * 友盟统计
+	// * */
+	// public void onPause()
+	// {
+	// super.onPause();
+	// MobclickAgent.onPause(this);
+	// }
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+	}
+
+}

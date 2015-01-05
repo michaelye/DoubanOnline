@@ -23,8 +23,7 @@ public abstract class BaseCompatableAdapter<T> extends BaseAdapter
 
 		this.context = context;
 		this.data = data;
-		layoutInflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override

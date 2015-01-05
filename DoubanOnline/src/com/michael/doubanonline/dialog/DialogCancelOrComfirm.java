@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.michael.doubanonline.R;
@@ -35,7 +36,7 @@ public class DialogCancelOrComfirm implements OnClickListener
 	private void initDialog(Context context)
 	{
 		LayoutInflater layoutInflater = ((Activity) context).getLayoutInflater();
-		View customDialog = layoutInflater.inflate(R.layout.layout_dialog_cancel_or_comfirm, null);
+		View customDialog = layoutInflater.inflate(R.layout.layout_dialog_cancel_or_comfirm, new LinearLayout(context), false);
 		tvTitle = (TextView) customDialog.findViewById(R.id.tvTitle);
 		btnCancel = (Button) customDialog.findViewById(R.id.btnCancel);
 		btnComfirm = (Button) customDialog.findViewById(R.id.btnComfirm);
